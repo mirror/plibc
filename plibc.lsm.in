@@ -1,0 +1,15 @@
+Begin3
+Title:		plibc
+Version:	@VERSION@
+Entered-date:	@ISODATE@
+Description:	POSIX compliant libc extension for Windows
+		@configure_input@
+Keywords:	libc, plibc, Windows, MinGW
+Author: 	ndurner@users.sourceforge.net (Nils Durner)
+Maintained-by:	ndurner@users.sourceforge.net (Nils Durner)
+Primary-site:	plibc.sf.net
+Alternate-site: 
+Original-site:  
+Platforms:      Windows
+Copying-policy:	GNU copyleft
+End

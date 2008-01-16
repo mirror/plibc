@@ -1,0 +1,3 @@
+ * Newer versions of MinGW define ftruncate(). Because of that,
+   a check needs to be added to configure.ac/configure.in:
+   		AC_CHECK_FUNCS(ftruncate)

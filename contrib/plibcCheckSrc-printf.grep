@@ -1,0 +1,14 @@
+[^[:alnum:]_.->]printf[:space:]*(
+[^[:alnum:]_.->]fprintf[:space:]*(
+[^[:alnum:]_.->]vprintf[:space:]*(
+[^[:alnum:]_.->]vfprintf[:space:]*(
+[^[:alnum:]_.->]vsprintf[:space:]*(
+[^[:alnum:]_.->]vsnprintf[:space:]*(
+[^[:alnum:]_.->]snprintf[:space:]*(
+[^[:alnum:]_.->]sprintf[:space:]*(
+[^[:alnum:]_.->]vsscanf[:space:]*(
+[^[:alnum:]_.->]sscanf[:space:]*(
+[^[:alnum:]_.->]vfscanf[:space:]*(
+[^[:alnum:]_.->]vscanf[:space:]*(
+[^[:alnum:]_.->]scanf[:space:]*(
+[^[:alnum:]_.->]fscanf[:space:]*(
