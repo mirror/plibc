@@ -1,6 +1,6 @@
 /*
      This file is part of PlibC.
-     (C) 2005, 2006 Nils Durner (and other contributing authors)
+     (C) 2005, 2006, 2007, 2008 Nils Durner (and other contributing authors)
 
 	   This library is free software; you can redistribute it and/or
 	   modify it under the terms of the GNU Lesser General Public
@@ -26,20 +26,22 @@
 
 #define DEBUG_WINPROC 0
 
-char szRootDir[_MAX_PATH + 1];
+char szRootDir[_MAX_PATH + 1] = "";
 long lRootDirLen;
-char szHomeDir[_MAX_PATH + 2];
+char szDataDir[_MAX_PATH + 1] = "";
+long lDataDirLen;
+char szHomeDir[_MAX_PATH + 2] = "";
 long lHomeDirLen;
 char szUser[261] = "";
-char *_pszOrg = NULL, *_pszApp = NULL;
+char *_pszOrg = NULL, *_pszApp = NULL; 
 OSVERSIONINFO theWinVersion;
 unsigned int uiSockCount = 0;
-Winsock *pSocks;
+Winsock *pSocks = NULL;
 HANDLE hSocksLock, hHandlesLock;
 unsigned int uiMappingsCount = 0;
 unsigned int uiHandlesCount = 0;
-TMapping *pMappings;
-THandleInfo *pHandles;
+TMapping *pMappings = NULL;
+THandleInfo *pHandles = NULL;
 HANDLE hMappingsLock;
 TPanicProc __plibc_panic = NULL;
 int iInit = 0;
@@ -259,7 +261,7 @@ int plibc_init(char *pszOrg, char *pszApp)
 {
   long lRet;
   WSADATA wsaData;
-  enum {ROOT, USER, HOME} eAction = ROOT;
+  enum {ROOT, USER, HOME, DATA} eAction = ROOT;
   UINT uiCP;
   char szLang[11] = "LANG=";
   LCID locale;
@@ -272,6 +274,8 @@ int plibc_init(char *pszOrg, char *pszApp)
   }
 
 	__plibc_panic = __plibc_panic_default;
+  _pszOrg = strdup(pszOrg);
+  _pszApp = strdup(pszApp);
 
   /* Init path translation */
   if((lRet = _plibc_DetermineRootDir()) == ERROR_SUCCESS)
@@ -283,6 +287,12 @@ int plibc_init(char *pszOrg, char *pszApp)
 
     eAction = HOME;
     lRet = _plibc_DetermineHomeDir();
+  }
+  
+  if (lRet == ERROR_SUCCESS)
+  {
+    eAction = DATA;
+    lRet = _plibc_DetermineProgramDataDir();
   }
 
   if(lRet != ERROR_SUCCESS)
@@ -302,9 +312,9 @@ int plibc_init(char *pszOrg, char *pszApp)
     if(pszMsg2[lMem - 2] == '\r')
       pszMsg2[lMem - 2] = 0;
 
-    _win_snprintf(szPanic, 1000, "Cannot determine %s (%s)\n",
-            eAction == ROOT ? "root directory" :
-              "home directory", pszMsg2);
+    _win_snprintf(szPanic, 1000, "Cannot determine %s directory (%s)\n",
+            eAction == ROOT ? "root" :
+            eAction == HOME ? "home" : "data", pszMsg2);
     szPanic[1000] = 0;
     __plibc_panic(1, szPanic);
     
@@ -364,9 +374,6 @@ int plibc_init(char *pszOrg, char *pszApp)
   hMsvcrt = LoadLibrary("msvcrt.dll");
   _plibc_stat64 = GetProcAddress(hMsvcrt, "_stat64");
   
-	_pszOrg = strdup(pszOrg);
-	_pszApp = strdup(pszApp);
-	
 	iInit++;
 	
 	return ERROR_SUCCESS;

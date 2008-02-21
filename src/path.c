@@ -1,6 +1,6 @@
 /*
      This file is part of PlibC.
-     (C) 2005 Nils Durner (and other contributing authors)
+     (C) 2005, 2006, 2007, 2008 Nils Durner (and other contributing authors)
 
 	   This library is free software; you can redistribute it and/or
 	   modify it under the terms of the GNU Lesser General Public
@@ -28,6 +28,8 @@ extern char szRootDir[_MAX_PATH + 1];
 extern long lRootDirLen;
 extern char szHomeDir[_MAX_PATH + 2];
 extern long lHomeDirLen;
+extern char szDataDir[_MAX_PATH + 1];
+extern long lDataDirLen;
 extern char szUser[261];
 extern char *_pszOrg;
 extern char *_pszApp;
@@ -158,6 +160,35 @@ long _plibc_DetermineHomeDir()
   return ERROR_SUCCESS;
 }
 
+long _plibc_DetermineProgramDataDir()
+{
+  long lRet;
+  
+  lDataDirLen = _MAX_PATH;
+  lRet = QueryRegistry(HKEY_LOCAL_MACHINE,
+                       "Software\\Microsoft\\Windows\\CurrentVersion\\"
+                       "Explorer\\Shell Folders",
+                       "Common AppData", szDataDir, &lDataDirLen);
+
+  lDataDirLen += strlen(_pszApp) + 1 + strlen(_pszOrg) + 1; 
+  if (lRet == ERROR_BUFFER_OVERFLOW || lDataDirLen > _MAX_PATH)
+  {
+    return ERROR_BUFFER_OVERFLOW;
+  }
+  else if (lRet == ERROR_SUCCESS)
+  {
+    strcat(szDataDir, "\\");
+    strcat(szDataDir, _pszOrg);
+    strcat(szDataDir, "\\");
+    strcat(szDataDir, _pszApp);
+    strcat(szDataDir, "\\");
+  }
+  else
+    strcpy(szDataDir, szRootDir);
+  
+  return ERROR_SUCCESS;
+}
+
 /**
  * @brief Convert a POSIX-sytle path to a Windows-style path
  * @param pszUnix POSIX path
@@ -204,6 +235,24 @@ int plibc_conv_to_win_path_ex(const char *pszUnix, char *pszWindows, int derefLi
     pDest = pszWindows + iSpaceUsed;
     pSrc = (char *) pszUnix + 5;
   }
+  /* Bit bucket? */
+  else if (strncmp(pszUnix, "/dev/null", 9) == 0)
+  {
+    strcpy(pszWindows, "nul");
+    iSpaceUsed = 3;
+    pDest = pszWindows + lHomeDirLen;
+    pSrc = (char *) pszUnix + 9;
+  }
+  /* Data directories */
+  else if (strncmp(pszUnix, "/etc/", 5) == 0 ||
+    strncmp(pszUnix, "/com/", 5) == 0 ||
+    strncmp(pszUnix, "/var/", 5) == 0)
+  {
+    strcpy(pszWindows, szDataDir);
+    iSpaceUsed = lDataDirLen;
+    pDest = pszWindows + lDataDirLen;
+    pSrc = (char *) pszUnix + 1;
+  }
   /* Is the unix path a full path? */
   else if(pszUnix[0] == '/')
   {
@@ -227,14 +276,6 @@ int plibc_conv_to_win_path_ex(const char *pszUnix, char *pszWindows, int derefLi
     iSpaceUsed = lHomeDirLen;
     pDest = pszWindows + lHomeDirLen;
     pSrc = (char *) pszUnix + 5;  	
-  }
-  /* Bit bucket? */
-  else if (strncmp(pszUnix, "/dev/null", 9) == 0)
-  {
-    strcpy(pszWindows, "nul");
-    iSpaceUsed = 3;
-    pDest = pszWindows + lHomeDirLen;
-    pSrc = (char *) pszUnix + 9;
   }
   else
   {
