@@ -244,4 +244,19 @@ struct hostent *_win_gethostbyname(const char *name)
   return pHost;
 }
 
+/**
+ * @brief get network host entry
+ * @warning supports AF_INET only
+ */
+struct hostent *gethostbyname2(const char *name, int af)
+{
+  if (af != AF_INET)
+  {
+    SetHErrnoFromWinError(WSANO_RECOVERY);
+    return NULL;
+  }
+  else
+    return _win_gethostbyname(name);
+}
+
 /* end of socket.c */
