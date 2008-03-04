@@ -64,8 +64,6 @@ const char *gai_strerror(int code)
 {
     switch (code)
     {
-      case EAI_ADDRFAMILY:
-        return "Address family for hostname not supported";
       case EAI_AGAIN:
         return "Temporary failure in name resolution";
       case EAI_BADFLAGS:
@@ -84,18 +82,6 @@ const char *gai_strerror(int code)
         return "Servname not supported for ai_socktype";
       case EAI_SOCKTYPE:
         return "ai_socktype not supported";
-      case EAI_SYSTEM:
-        return "System error";
-      case EAI_INPROGRESS:
-        return "Processing request in progress";
-      case EAI_CANCELED:
-        return "Request canceled";
-      case EAI_NOTCANCELED:
-        return "Request not canceled";
-      case EAI_ALLDONE:
-        return "All requests done";
-      case EAI_INTR:
-        return "Interrupted by a signal";
       default:
         return "Unknown error";
     }
