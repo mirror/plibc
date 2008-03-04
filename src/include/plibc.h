@@ -304,6 +304,26 @@ typedef struct
 #define SHUT_RD SD_RECEIVE
 #define SHUT_RDWR SD_BOTH
 
+# define EAI_BADFLAGS     -1    /* Invalid value for `ai_flags' field.  */
+# define EAI_NONAME       -2    /* NAME or SERVICE is unknown.  */
+# define EAI_AGAIN        -3    /* Temporary failure in name resolution.  */
+# define EAI_FAIL         -4    /* Non-recoverable failure in name res.  */
+# define EAI_NODATA       -5    /* No address associated with NAME.  */
+# define EAI_FAMILY       -6    /* `ai_family' not supported.  */
+# define EAI_SOCKTYPE     -7    /* `ai_socktype' not supported.  */
+# define EAI_SERVICE      -8    /* SERVICE not supported for `ai_socktype'.  */
+# define EAI_ADDRFAMILY   -9    /* Address family for NAME not supported.  */
+# define EAI_MEMORY       -10   /* Memory allocation failure.  */
+# define EAI_SYSTEM       -11   /* System error returned in `errno'.  */
+# define EAI_OVERFLOW     -12   /* Argument buffer overflow.  */
+# define EAI_INPROGRESS  -100  /* Processing request in progress.  */
+# define EAI_CANCELED    -101  /* Request canceled.  */
+# define EAI_NOTCANCELED -102  /* Request not canceled.  */
+# define EAI_ALLDONE     -103  /* All requests done.  */
+# define EAI_INTR        -104  /* Interrupted by a signal.  */
+# define EAI_IDN_ENCODE  -105  /* IDN encoding failed.  */
+
+
 #define SetErrnoFromWinError(e) _SetErrnoFromWinError(e, __FILE__, __LINE__)
 
 BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest);
@@ -420,6 +440,7 @@ SOCKET _win_socket(int af, int type, int protocol);
 struct hostent *_win_gethostbyaddr(const char *addr, int len, int type);
 struct hostent *_win_gethostbyname(const char *name);
 struct hostent *gethostbyname2(const char *name, int af);
+const char *gai_strerror (int code);
 char *_win_strerror(int errnum);
 int IsWinNT();
 char *index(const char *s, int c);
