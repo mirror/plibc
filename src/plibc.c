@@ -47,8 +47,11 @@ TPanicProc __plibc_panic = NULL;
 int iInit = 0;
 HMODULE hMsvcrt = NULL;
 TStat64 _plibc_stat64 = NULL;
+Tgetnameinfo _plibc_getnameinfo = NULL;
+Tfreeaddrinfo _plibc_freeaddrinfo = NULL;
+Tgetaddrinfo _plibc_getaddrinfo = NULL;
 
-static HINSTANCE hIphlpapi, hAdvapi;
+static HINSTANCE hIphlpapi, hAdvapi, hWS2_32;
 
 const struct in6_addr in6addr_any = { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } };
 const struct in6_addr in6addr_loopback = { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } };
@@ -377,6 +380,12 @@ int plibc_init(char *pszOrg, char *pszApp)
   hMsvcrt = LoadLibrary("msvcrt.dll");
   _plibc_stat64 = GetProcAddress(hMsvcrt, "_stat64");
   
+  /* work around undefined references to resolver functions */
+  hWS2_32 = LoadLibrary("ws2_32.dll");
+  _plibc_getnameinfo = GetProcAddress(hWS2_32, "getnameinfo");
+  _plibc_freeaddrinfo = GetProcAddress(hWS2_32, "freeaddrinfo");
+  _plibc_getaddrinfo = GetProcAddress(hWS2_32, "getaddrinfo");
+  
 	iInit++;
 	
 	return ERROR_SUCCESS;
@@ -412,6 +421,9 @@ void plibc_shutdown()
   
   if (hMsvcrt)
     FreeModule(hMsvcrt);
+    
+  if (hWS2_32)
+    FreeModule(hWS2_32);
   
   free(_pszOrg);
   free(_pszApp);

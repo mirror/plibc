@@ -48,6 +48,7 @@ libplibc_la_SOURCES = \
  registry.c \
  remove.c \
  rename.c \
+ resolv.c \
  rmdir.c \
  select.c \
  shortcut.cc \
