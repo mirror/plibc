@@ -50,6 +50,9 @@ TStat64 _plibc_stat64 = NULL;
 
 static HINSTANCE hIphlpapi, hAdvapi;
 
+const struct in6_addr in6addr_any = { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } };
+const struct in6_addr in6addr_loopback = { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } };
+
 unsigned plibc_get_handle_count()
 {
   return uiHandlesCount;

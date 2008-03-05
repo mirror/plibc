@@ -224,6 +224,9 @@ struct statfs
   long f_spare[6];              /* spare for later */
 };
 
+extern const struct in6_addr in6addr_any;        /* :: */
+extern const struct in6_addr in6addr_loopback;   /* ::1 */
+
 /* Taken from the Wine project <http://www.winehq.org>
     /wine/include/winternl.h */
 enum SYSTEM_INFORMATION_CLASS
@@ -420,7 +423,6 @@ SOCKET _win_socket(int af, int type, int protocol);
 struct hostent *_win_gethostbyaddr(const char *addr, int len, int type);
 struct hostent *_win_gethostbyname(const char *name);
 struct hostent *gethostbyname2(const char *name, int af);
-const char *gai_strerror (int code);
 char *_win_strerror(int errnum);
 int IsWinNT();
 char *index(const char *s, int c);
