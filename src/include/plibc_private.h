@@ -68,14 +68,6 @@ typedef struct
 } TReadWriteInfo;
 
 typedef int (*TStat64) (const char *path, struct stat64 *buffer);
-typedef int (*Tgetnameinfo) (const struct sockaddr *sa, socklen_t salen,
-       char *node, socklen_t nodelen, char *service,
-       socklen_t servicelen, int flags);
-typedef void (*Tfreeaddrinfo) (struct addrinfo *ai);
-typedef int (*Tgetaddrinfo) (const char *nodename,
-       const char *servname,
-       const struct addrinfo *hints,
-       struct addrinfo **res);
 
 typedef enum {UNKNOWN_HANDLE, SOCKET_HANDLE, PIPE_HANDLE, FD_HANDLE} THandleType;
 typedef struct
