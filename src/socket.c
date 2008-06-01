@@ -250,7 +250,7 @@ struct hostent *_win_gethostbyname(const char *name)
  */
 struct hostent *gethostbyname2(const char *name, int af)
 {
-  if (af != AF_INET)
+  if (!(af == AF_INET || af == AF_UNSPEC))
   {
     SetHErrnoFromWinError(WSANO_RECOVERY);
     return NULL;
