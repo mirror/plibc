@@ -38,6 +38,8 @@ int _win_close(int fd)
   {
     case SOCKET_HANDLE:
       ret = closesocket(fd);
+      if (ret == SOCKET_ERROR)
+        SetErrnoFromWinsockError(WSAGetLastError());
       break;
     case PIPE_HANDLE:
       if (!CloseHandle((HANDLE) fd))
