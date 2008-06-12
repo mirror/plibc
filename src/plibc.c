@@ -269,14 +269,14 @@ int plibc_init(char *pszOrg, char *pszApp)
   char szLang[11] = "LANG=";
   LCID locale;
 
-	if (iInit > 0)
+  if (iInit > 0)
   {
     iInit++;
-    
-		return ERROR_SUCCESS;
+
+    return ERROR_SUCCESS;
   }
 
-	__plibc_panic = __plibc_panic_default;
+  __plibc_panic = __plibc_panic_default;
   _pszOrg = strdup(pszOrg);
   _pszApp = strdup(pszApp);
 
