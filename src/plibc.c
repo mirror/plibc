@@ -266,7 +266,8 @@ int plibc_init(char *pszOrg, char *pszApp)
   WSADATA wsaData;
   enum {ROOT, USER, HOME, DATA} eAction = ROOT;
   UINT uiCP;
-  char szLang[11] = "LANG=";
+  char szLang[11] = "LANG=", *ini;
+  struct stat inistat;
   LCID locale;
 
   if (iInit > 0)
@@ -277,9 +278,35 @@ int plibc_init(char *pszOrg, char *pszApp)
   }
 
   __plibc_panic = __plibc_panic_default;
-  _pszOrg = strdup(pszOrg);
-  _pszApp = strdup(pszApp);
+  
+  /* Since different modules may initialize to *their* org/app, we need a mechanism to force this
+   * information to a global "product name" */
+  if (stat("plibc.ini", &inistat) == 0)
+    ini = "plibc.ini";
+  else if (stat("..\\share\\plibc.ini", &inistat) == 0)
+    ini = "..\\share\\plibc.ini";
+  else if (stat("..\\share\\plibc\\plibc.ini", &inistat) == 0)
+    ini = "..\\share\\plibc\\plibc.ini";
+  else if (stat("..\\etc\\plibc.ini", &inistat) == 0)
+    ini = "..\\etc\\plibc.ini";
+  else if (stat("..\\etc\\plibc\\plibc.ini", &inistat) == 0)
+    ini = "..\\etc\\plibc\\plibc.ini";
+  else
+    ini = NULL;
 
+  if (ini)
+  {
+    GetPrivateProfileString("init", "organisation", NULL, szUser, sizeof(szUser), ini);
+    _pszOrg = strdup(szUser);    
+    GetPrivateProfileString("init", "application", NULL, szUser, sizeof(szUser), ini);
+    _pszApp = strdup(szUser);    
+  }
+  else
+  {
+    _pszOrg = strdup(pszOrg);
+    _pszApp = strdup(pszApp);
+  }
+    
   /* Init path translation */
   if((lRet = _plibc_DetermineRootDir()) == ERROR_SUCCESS)
   {
