@@ -269,6 +269,7 @@ int plibc_init(char *pszOrg, char *pszApp)
   char szLang[11] = "LANG=", *ini;
   struct stat inistat;
   LCID locale;
+  char *binpath, *binpath_idx;
 
   if (iInit > 0)
   {
@@ -281,18 +282,40 @@ int plibc_init(char *pszOrg, char *pszApp)
   
   /* Since different modules may initialize to *their* org/app, we need a mechanism to force this
    * information to a global "product name" */
-  if (stat("plibc.ini", &inistat) == 0)
-    ini = "plibc.ini";
-  else if (stat("..\\share\\plibc.ini", &inistat) == 0)
+  binpath = malloc (4200);
+  GetModuleFileName (NULL, binpath, 4096);
+  binpath_idx = binpath + strlen (binpath);
+  while ((binpath_idx > binpath) && (*binpath_idx != '\\') && (*binpath_idx != '/'))
+    binpath_idx--;
+  *binpath_idx = '\0';  
+  
+  strcat(binpath, "\\");
+  binpath_idx++;
+  
+  ini = "plibc.ini";
+  strcat(binpath, ini);
+  if (stat(binpath, &inistat) != 0)
+  {
     ini = "..\\share\\plibc.ini";
-  else if (stat("..\\share\\plibc\\plibc.ini", &inistat) == 0)
-    ini = "..\\share\\plibc\\plibc.ini";
-  else if (stat("..\\etc\\plibc.ini", &inistat) == 0)
-    ini = "..\\etc\\plibc.ini";
-  else if (stat("..\\etc\\plibc\\plibc.ini", &inistat) == 0)
-    ini = "..\\etc\\plibc\\plibc.ini";
-  else
-    ini = NULL;
+    memcpy(binpath_idx, ini, 19);
+    if (stat(binpath, &inistat) != 0)
+    {
+      ini = "..\\share\\plibc\\plibc.ini";
+      memcpy(binpath_idx, ini, 25);
+      if (stat(binpath, &inistat) != 0)
+      {
+        ini = "..\\etc\\plibc.ini";
+        memcpy(binpath_idx, ini, 17);
+        if (stat(binpath, &inistat) != 0)
+        {
+          ini = "..\\etc\\plibc\\plibc.ini";
+          memcpy(binpath_idx, ini, 23);
+          if (stat(binpath, &inistat) != 0)
+            ini = NULL;
+        }
+      }
+    }
+  }
 
   if (ini)
   {
