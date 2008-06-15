@@ -319,9 +319,9 @@ int plibc_init(char *pszOrg, char *pszApp)
 
   if (ini)
   {
-    GetPrivateProfileString("init", "organisation", NULL, szUser, sizeof(szUser), ini);
+    GetPrivateProfileString("init", "organisation", NULL, szUser, sizeof(szUser), binpath);
     _pszOrg = strdup(szUser);    
-    GetPrivateProfileString("init", "application", NULL, szUser, sizeof(szUser), ini);
+    GetPrivateProfileString("init", "application", NULL, szUser, sizeof(szUser), binpath);
     _pszApp = strdup(szUser);    
   }
   else
