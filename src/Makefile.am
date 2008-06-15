@@ -26,6 +26,7 @@ libplibc_la_SOURCES = \
  fstat.c \
  fsync.c \
  fwrite.c \
+ kill.c \
  gettimeofday.c \
  inet_pton.c \
  intl.c \

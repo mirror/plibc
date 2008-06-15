@@ -307,6 +307,9 @@ typedef struct
 #define SHUT_RD SD_RECEIVE
 #define SHUT_RDWR SD_BOTH
 
+#define SIGKILL 9
+#define SIGTERM 15
+
 #define SetErrnoFromWinError(e) _SetErrnoFromWinError(e, __FILE__, __LINE__)
 
 BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest);
@@ -361,6 +364,7 @@ int _win_close(int fd);
 int _win_creat(const char *path, mode_t mode);
 int _win_fstat(int handle, struct stat *buffer);
 int _win_ftruncate(int fildes, off_t length);
+int _win_kill(pid_t pid, int sig);
 int _win_pipe(int *phandles);
 int _win_rmdir(const char *path);
 int _win_access( const char *path, int mode );
@@ -462,6 +466,7 @@ size_t strnlen (const char *str, size_t maxlen);
  #define ACCESS(p, m) access(p, m)
  #define CHMOD(f, p) chmod(f, p)
  #define FSTAT(h, b) fstat(h, b)
+ #define PLIBC_KILL(p, s) kill(p, s)
  #define PIPE(h) pipe(h)
  #define REMOVE(p) remove(p)
  #define RENAME(o, n) rename(o, n)
@@ -529,6 +534,7 @@ size_t strnlen (const char *str, size_t maxlen);
  #define OPEN _win_open
  #define CHDIR(d) _win_chdir(d)
  #define CLOSE(f) _win_close(f)
+ #define PLIBC_KILL(p, s) _win_kill(p, s)
  #define LSEEK(f, o, w) _win_lseek(f, o, w)
  #define FSTAT(h, b) _win_fstat(h, b)
  #define RMDIR(f) _win_rmdir(f)
