@@ -426,6 +426,8 @@ int plibc_init(char *pszOrg, char *pszApp)
   /* stat64 isn't available under Windows 9x */
   hMsvcrt = LoadLibrary("msvcrt.dll");
   _plibc_stat64 = GetProcAddress(hMsvcrt, "_stat64");
+
+  srand((unsigned int) time(NULL));
   
 	iInit++;
 	
