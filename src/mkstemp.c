@@ -28,40 +28,41 @@ int mkstemp(char *tmplate)
 {
   static const char letters[]
     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  int iLen, iRnd;
+  int iLen, iRnd, bExists, iRet;
   char *pChr;
 
   errno = 0;
+  bExists = 1;
 
   iLen = strlen(tmplate);
-  if(iLen >= 6)
-  {
-    pChr = tmplate + iLen - 6;
-    srand((unsigned int) time(NULL));
-
-    if(strncmp(pChr, "XXXXXX", 6) == 0)
-    {
-      int iChr;
-      for(iChr = 0; iChr < 6; iChr++)
-      {
-        /* 528.5 = RAND_MAX / letters */
-        iRnd = rand() / 528.5;
-        *(pChr++) = letters[iRnd > 0 ? iRnd - 1 : 0];
-      }
-    }
-    else
-    {
-      errno = EINVAL;
-      return -1;
-    }
-  }
-  else
+  pChr = tmplate + iLen - 6;
+  
+  if (iLen < 6 || strncmp(pChr, "XXXXXX", 6) != 0)
   {
     errno = EINVAL;
     return -1;
   }
+
+  while (bExists)
+  {
+    int iChr;
+
+    for(iChr = 0; iChr < 6; iChr++)
+    {
+      /* 528.5 = RAND_MAX / letters */
+      iRnd = rand() / 528.5;
+      *(pChr++) = letters[iRnd > 0 ? iRnd - 1 : 0];
+    }
+ 
+    iRet = _win_open(tmplate, _O_CREAT | _O_EXCL | _O_RDWR, _S_IREAD | _S_IWRITE);
+    
+    if (iRet == -1 && errno == EEXIST)
+      pChr = tmplate + iLen - 6;
+    else
+      bExists = 0;
+  }
   
-  return _win_open(tmplate, _O_CREAT | _O_EXCL | _O_RDWR, _S_IREAD | _S_IWRITE);
+  return iRet;
 }
 
 /* end of mkstemp.c */
