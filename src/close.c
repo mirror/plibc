@@ -55,6 +55,7 @@ int _win_close(int fd)
       break;
     case UNKNOWN_HANDLE:
       ret = -1;
+      errno = EBADF;
       SetLastError(ERROR_INVALID_HANDLE);
       __plibc_panic(5, "Cannot close() unknown handle");
       break;
