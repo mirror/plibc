@@ -6,12 +6,12 @@
 	   modify it under the terms of the GNU Lesser General Public
 	   License as published by the Free Software Foundation; either
 	   version 2.1 of the License, or (at your option) any later version.
-	
+
 	   This library is distributed in the hope that it will be useful,
 	   but WITHOUT ANY WARRANTY; without even the implied warranty of
 	   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	   Lesser General Public License for more details.
-	
+
 	   You should have received a copy of the GNU Lesser General Public
 	   License along with this library; if not, write to the Free Software
 	   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -367,7 +367,7 @@ void _SetErrnoFromWinError(long lWinError, char *pszCaller, int iLine)
     default:
     	{
     		char szPanic[1001];
-    		
+
 	      errno = ESTALE;
 	      _win_snprintf(szPanic, 1000, "Unknown error %i in PlibC "\
 	      		"SetErrnoFromWinError(). Source: %s:%i\n", lWinError, pszCaller,
@@ -549,7 +549,7 @@ void SetErrnoFromWinsockError(long lWinError)
     case WSAEFAULT:
       errno = EFAULT;
       break;
-      
+
     case WSANO_DATA:
     	errno = ENODATA;
     	break;
@@ -557,13 +557,13 @@ void SetErrnoFromWinsockError(long lWinError)
     default:
     	{
     		char szPanic[1001];
-    		
+
 	      errno = ESTALE;
 	      _win_snprintf(szPanic, 1000, "Unknown error %i in " \
-	      		"SetErrnoFromWinsockError()", lWinError);
+	      		"SetErrnoFromWinsockError()\n", lWinError);
 	      szPanic[1000] = 0;
 	     	__plibc_panic(4, szPanic);
-	     	
+
 	      break;
     	}
   }

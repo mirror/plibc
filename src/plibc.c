@@ -6,12 +6,12 @@
 	   modify it under the terms of the GNU Lesser General Public
 	   License as published by the Free Software Foundation; either
 	   version 2.1 of the License, or (at your option) any later version.
-	
+
 	   This library is distributed in the hope that it will be useful,
 	   but WITHOUT ANY WARRANTY; without even the implied warranty of
 	   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	   Lesser General Public License for more details.
-	
+
 	   You should have received a copy of the GNU Lesser General Public
 	   License along with this library; if not, write to the Free Software
 	   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -33,7 +33,7 @@ long lDataDirLen;
 char szHomeDir[_MAX_PATH + 2] = "";
 long lHomeDirLen;
 char szUser[261] = "";
-char *_pszOrg = NULL, *_pszApp = NULL; 
+char *_pszOrg = NULL, *_pszApp = NULL;
 OSVERSIONINFO theWinVersion;
 unsigned int uiSockCount = 0;
 Winsock *pSocks = NULL;
@@ -118,10 +118,10 @@ void __win_SetHandleBlockingMode(SOCKET s, BOOL bBlocking)
 
         break;
       }
-      
+
       if (iSet)
         break;
-      
+
       uiIndex++;
     }
   }
@@ -184,7 +184,7 @@ void __win_SetHandleType(DWORD dwHandle, THandleType eType)
     while(TRUE)
     {
       int iSet = 0;
-      
+
       if (pHandles[uiIndex].dwHandle == 0)
       {
         pHandles[uiIndex].dwHandle = dwHandle;
@@ -199,10 +199,10 @@ void __win_SetHandleType(DWORD dwHandle, THandleType eType)
 
         break;
       }
-      
+
       if (iSet)
         break;
-        
+
       uiIndex++;
     }
   }
@@ -279,7 +279,7 @@ int plibc_init(char *pszOrg, char *pszApp)
   }
 
   __plibc_panic = __plibc_panic_default;
-  
+
   /* Since different modules may initialize to *their* org/app, we need a mechanism to force this
    * information to a global "product name" */
   binpath = malloc (4200);
@@ -287,11 +287,11 @@ int plibc_init(char *pszOrg, char *pszApp)
   binpath_idx = binpath + strlen (binpath);
   while ((binpath_idx > binpath) && (*binpath_idx != '\\') && (*binpath_idx != '/'))
     binpath_idx--;
-  *binpath_idx = '\0';  
-  
+  *binpath_idx = '\0';
+
   strcat(binpath, "\\");
   binpath_idx++;
-  
+
   ini = "plibc.ini";
   strcat(binpath, ini);
   if (stat(binpath, &inistat) != 0)
@@ -320,16 +320,16 @@ int plibc_init(char *pszOrg, char *pszApp)
   if (ini)
   {
     GetPrivateProfileString("init", "organisation", NULL, szUser, sizeof(szUser), binpath);
-    _pszOrg = strdup(szUser);    
+    _pszOrg = strdup(szUser);
     GetPrivateProfileString("init", "application", NULL, szUser, sizeof(szUser), binpath);
-    _pszApp = strdup(szUser);    
+    _pszApp = strdup(szUser);
   }
   else
   {
     _pszOrg = strdup(pszOrg);
     _pszApp = strdup(pszApp);
   }
-    
+
   /* Init path translation */
   if((lRet = _plibc_DetermineRootDir()) == ERROR_SUCCESS)
   {
@@ -341,7 +341,7 @@ int plibc_init(char *pszOrg, char *pszApp)
     eAction = HOME;
     lRet = _plibc_DetermineHomeDir();
   }
-  
+
   if (lRet == ERROR_SUCCESS)
   {
     eAction = DATA;
@@ -370,7 +370,7 @@ int plibc_init(char *pszOrg, char *pszApp)
             eAction == HOME ? "home" : "data", pszMsg2);
     szPanic[1000] = 0;
     __plibc_panic(1, szPanic);
-    
+
     LocalFree(pszMsg);
     free(pszMsg2);
 
@@ -380,7 +380,7 @@ int plibc_init(char *pszOrg, char *pszApp)
   /* Init Winsock */
   if (WSAStartup(257, &wsaData) != 0)
   {
-    __plibc_panic(2, "Cannot initialize Winsock");
+    __plibc_panic(2, "Cannot initialize Winsock\n");
 
     return GetLastError();
   }
@@ -422,15 +422,15 @@ int plibc_init(char *pszOrg, char *pszApp)
 
   /* Initialize COM library */
   CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-  
+
   /* stat64 isn't available under Windows 9x */
   hMsvcrt = LoadLibrary("msvcrt.dll");
   _plibc_stat64 = GetProcAddress(hMsvcrt, "_stat64");
 
   srand((unsigned int) time(NULL));
-  
+
 	iInit++;
-	
+
 	return ERROR_SUCCESS;
 }
 
@@ -443,17 +443,17 @@ void plibc_shutdown()
   {
     if (iInit > 1)
       iInit--;
-    
+
 		return;
   }
-	
+
   WSACleanup();
   free(pSocks);
   CloseHandle(hSocksLock);
 
   free(pMappings);
   CloseHandle(hMappingsLock);
-  
+
   free(pHandles);
   CloseHandle(hHandlesLock);
 
@@ -461,13 +461,13 @@ void plibc_shutdown()
   FreeLibrary(hAdvapi);
 
   CoUninitialize();
-  
+
   if (hMsvcrt)
     FreeModule(hMsvcrt);
-  
+
   free(_pszOrg);
   free(_pszApp);
-  
+
   iInit--;
 }
 
