@@ -1,3 +1,16 @@
+2009-01-29	Nils Durner <ndurner@users.sourceforge.net>
+	* releasing 0.1.4
+
+2008-08-17	Nils Durner <ndurner@users.sourceforge.net>
+	* Vista compatibility
+	* gethostbyname2()
+	* various resolver functions
+	* kill()
+	* fix mkstemp()
+
+2008-06-15	Nils Durner <ndurner@users.sourceforge.net>
+	* plibc.ini can now override the parameters passed to plibc_init()
+
 2006-01-12	Nils Durner	<ndurner@users.sourceforge.net>
 	* plibc_conv_to_win_path(_ex)() no longer crashes if passed null pointers
 
