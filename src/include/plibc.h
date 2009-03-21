@@ -97,6 +97,10 @@ struct stat64
 	#define WEXITSTATUS(status) (((status) & 0xff00) >> 8)
 #endif
 
+#ifndef MSG_DONTWAIT
+  #define MSG_DONTWAIT 0
+#endif
+
 /* Thanks to the Cygwin project */
 #define ENOCSI 43	/* No CSI structure available */
 #define EL2HLT 44	/* Level 2 halted */
