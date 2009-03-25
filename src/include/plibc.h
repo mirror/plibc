@@ -343,10 +343,12 @@ int inet_pton6(const char *src, u_char *dst);
 int truncate(const char *fname, int distance);
 int statfs(const char *path, struct statfs *buf);
 const char *hstrerror(int err);
+#undef gettimeofday
 void gettimeofday(struct timeval *tp, void *tzp);
 int mkstemp(char *tmplate);
 char *strptime (const char *buf, const char *format, struct tm *tm);
 char *ctime(const time_t *clock);
+#undef ctime_r
 char *ctime_r(const time_t *clock, char *buf);
 const char *inet_ntop(int af, const void *src, char *dst, size_t size);
 int plibc_init(char *pszOrg, char *pszApp);
