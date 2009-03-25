@@ -28,10 +28,13 @@ libplibc_la_SOURCES = \
  fwrite.c \
  kill.c \
  gettimeofday.c \
+ hsearch.c \
+ hsearch_r.c \
  inet_pton.c \
  intl.c \
  inet_ntop.c \
  langinfo.c \
+ lsearch.c \
  lseek.c \
  mkstemp.c \
  mmap.c \
@@ -61,6 +64,7 @@ libplibc_la_SOURCES = \
  strptime.c \
  symlink.c \
  truncate.c \
+ tsearch.c \
  unlink.c \
  write.c
 

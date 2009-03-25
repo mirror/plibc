@@ -1,3 +1,6 @@
+2009-03-25	Nils Durner <ndurner@users.sourceforge.net>
+	* added search functions (tsearch, lsearch, hsearch)
+
 2009-01-29	Nils Durner <ndurner@users.sourceforge.net>
 	* releasing 0.1.4
 
