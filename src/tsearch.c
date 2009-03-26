@@ -263,7 +263,7 @@ maybe_split_for_insert (node *rootp, node *parentp, node *gparentp,
    KEY is the key to be located, ROOTP is the address of tree root,
    COMPAR the ordering function.  */
 void *
-__tsearch (const void *key, void **vrootp, __compar_fn_t compar)
+tsearch (const void *key, void **vrootp, __compar_fn_t compar)
 {
   node q;
   node *parentp = NULL, *gparentp = NULL;
@@ -327,7 +327,7 @@ __tsearch (const void *key, void **vrootp, __compar_fn_t compar)
    KEY is the key to be located, ROOTP is the address of tree root,
    COMPAR the ordering function.  */
 void *
-__tfind (key, vrootp, compar)
+tfind (key, vrootp, compar)
      const void *key;
      void *const *vrootp;
      __compar_fn_t compar;
@@ -358,7 +358,7 @@ __tfind (key, vrootp, compar)
    KEY is the key to be deleted, ROOTP is the address of the root of tree,
    COMPAR the comparison function.  */
 void *
-__tdelete (const void *key, void **vrootp, __compar_fn_t compar)
+tdelete (const void *key, void **vrootp, __compar_fn_t compar)
 {
   node p, q, r, retval;
   int cmp;
@@ -640,7 +640,7 @@ trecurse (const void *vroot, __action_fn_t action, int level)
    ROOT is the root of the tree to be walked, ACTION the function to be
    called at each node.  */
 void
-__twalk (const void *vroot, __action_fn_t action)
+twalk (const void *vroot, __action_fn_t action)
 {
   const_node root = (const_node) vroot;
 
@@ -667,7 +667,7 @@ tdestroy_recurse (node root, __free_fn_t freefct)
 }
 
 void
-__tdestroy (void *vroot, __free_fn_t freefct)
+tdestroy (void *vroot, __free_fn_t freefct)
 {
   node root = (node) vroot;
 
