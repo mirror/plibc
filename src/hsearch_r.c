@@ -21,46 +21,11 @@
 /* Adapted for PlibC by Nils Durner */
 
 #include <errno.h>
-#include <malloc.h>
-#include <string.h>
 
-#include <search.h>
+#include "plibc.h"
 
 /* [Aho,Sethi,Ullman] Compilers: Principles, Techniques and Tools, 1986
    [Knuth]            The Art of Computer Programming, part 3 (6.4)  */
-
-
-typedef enum
-  {
-    FIND,
-    ENTER
-  }
-ACTION;
-
-typedef struct entry
-  {
-    char *key;
-    void *data;
-  }
-ENTRY;
-
-struct hsearch_data
-  {
-    struct _ENTRY *table;
-    unsigned int size;
-    unsigned int filled;
-  };
-
-/* The reentrant version has no static variables to maintain the state.
-   Instead the interface of all functions is extended to take an argument
-   which describes the current status.  */
-typedef struct _ENTRY
-{
-  unsigned int used;
-  ENTRY entry;
-}
-_ENTRY;
-
 
 /* For the used double hash method the table size has to be a prime. To
    correct the user given table size we need a prime test.  This trivial
@@ -87,9 +52,9 @@ isprime (unsigned int number)
    The contents of the table is zeroed, especially the field used
    becomes zero.  */
 int
-hcreate_r (nel, htab)
+_win_hcreate_r (nel, htab)
      size_t nel;
-     struct hsearch_data *htab;
+     struct PLIBC_SEARCH_hsearch_data *htab;
 {
   /* Test for correct arguments.  */
   if (htab == NULL)
@@ -111,7 +76,7 @@ hcreate_r (nel, htab)
   htab->filled = 0;
 
   /* allocate memory and zero out */
-  htab->table = (_ENTRY *) calloc (htab->size + 1, sizeof (_ENTRY));
+  htab->table = (_PLIBC_SEARCH_ENTRY *) calloc (htab->size + 1, sizeof (_PLIBC_SEARCH_ENTRY));
   if (htab->table == NULL)
     return 0;
 
@@ -123,8 +88,8 @@ hcreate_r (nel, htab)
 /* After using the hash table it has to be destroyed. The used memory can
    be freed and the local static variable can be marked as not used.  */
 void
-hdestroy_r (htab)
-     struct hsearch_data *htab;
+_win_hdestroy_r (htab)
+     struct PLIBC_SEARCH_hsearch_data *htab;
 {
   /* Test for correct arguments.  */
   if (htab == NULL)
@@ -155,11 +120,11 @@ hdestroy_r (htab)
    equality of the stored and the parameter value. This helps to prevent
    unnecessary expensive calls of strcmp.  */
 int
-hsearch_r (item, action, retval, htab)
-     ENTRY item;
-     ACTION action;
-     ENTRY **retval;
-     struct hsearch_data *htab;
+_win_hsearch_r (item, action, retval, htab)
+     PLIBC_SEARCH_ENTRY item;
+     PLIBC_SEARCH_ACTION action;
+     PLIBC_SEARCH_ENTRY **retval;
+     struct PLIBC_SEARCH_hsearch_data *htab;
 {
   unsigned int hval;
   unsigned int count;

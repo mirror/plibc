@@ -24,7 +24,7 @@
 
 #include "plibc_private.h"
 
-void gettimeofday(struct timeval *tp, void *tzp)
+void _win_gettimeofday(struct timeval *tp, void *tzp)
 {
   struct _timeb theTime;
 

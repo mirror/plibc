@@ -89,27 +89,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef enum
-{
-  preorder,
-  postorder,
-  endorder,
-  leaf
-}
-VISIT;
-
-#ifndef __COMPAR_FN_T
-# define __COMPAR_FN_T
-typedef int (*__compar_fn_t) (__const void *, __const void *);
-
-typedef __compar_fn_t comparison_fn_t;
-#endif
-
-#ifndef __ACTION_FN_T
-# define __ACTION_FN_T
-typedef void (*__action_fn_t) (__const void *__nodep, VISIT __value,
-             int __level);
-#endif
+#include "plibc.h"
 
 /* Callback type for function to free a tree node.  If the keys are atomic
    data this function should do nothing.  */
@@ -263,7 +243,7 @@ maybe_split_for_insert (node *rootp, node *parentp, node *gparentp,
    KEY is the key to be located, ROOTP is the address of tree root,
    COMPAR the ordering function.  */
 void *
-tsearch (const void *key, void **vrootp, __compar_fn_t compar)
+_win_tsearch (const void *key, void **vrootp, PLIBC_SEARCH__compar_fn_t compar)
 {
   node q;
   node *parentp = NULL, *gparentp = NULL;
@@ -327,10 +307,10 @@ tsearch (const void *key, void **vrootp, __compar_fn_t compar)
    KEY is the key to be located, ROOTP is the address of tree root,
    COMPAR the ordering function.  */
 void *
-tfind (key, vrootp, compar)
+_win_tfind (key, vrootp, compar)
      const void *key;
      void *const *vrootp;
-     __compar_fn_t compar;
+     PLIBC_SEARCH__compar_fn_t compar;
 {
   node *rootp = (node *) vrootp;
 
@@ -358,7 +338,7 @@ tfind (key, vrootp, compar)
    KEY is the key to be deleted, ROOTP is the address of the root of tree,
    COMPAR the comparison function.  */
 void *
-tdelete (const void *key, void **vrootp, __compar_fn_t compar)
+_win_tdelete (const void *key, void **vrootp, PLIBC_SEARCH__compar_fn_t compar)
 {
   node p, q, r, retval;
   int cmp;
@@ -617,7 +597,7 @@ tdelete (const void *key, void **vrootp, __compar_fn_t compar)
    ROOT is the root of the tree to be walked, ACTION the function to be
    called at each node.  LEVEL is the level of ROOT in the whole tree.  */
 static void
-trecurse (const void *vroot, __action_fn_t action, int level)
+trecurse (const void *vroot, PLIBC_SEARCH__action_fn_t action, int level)
 {
   const_node root = (const_node) vroot;
 
@@ -640,7 +620,7 @@ trecurse (const void *vroot, __action_fn_t action, int level)
    ROOT is the root of the tree to be walked, ACTION the function to be
    called at each node.  */
 void
-twalk (const void *vroot, __action_fn_t action)
+_win_twalk (const void *vroot, PLIBC_SEARCH__action_fn_t action)
 {
   const_node root = (const_node) vroot;
 
@@ -667,7 +647,7 @@ tdestroy_recurse (node root, __free_fn_t freefct)
 }
 
 void
-tdestroy (void *vroot, __free_fn_t freefct)
+_win_tdestroy (void *vroot, __free_fn_t freefct)
 {
   node root = (node) vroot;
 

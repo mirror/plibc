@@ -27,7 +27,7 @@
 /**
  * @brief convert a time value to date and time string
  */
-char *ctime(const time_t *clock)
+char *_win_ctime(const time_t *clock)
 {
 	return asctime(localtime(clock));
 }
@@ -35,7 +35,7 @@ char *ctime(const time_t *clock)
 /**
  * @brief convert a time value to date and time string
  */
-char *ctime_r(const time_t *clock, char *buf)
+char *_win_ctime_r(const time_t *clock, char *buf)
 {
 	char *ret;
 	

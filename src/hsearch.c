@@ -19,57 +19,36 @@
 
 /* Adapted for PlibC by Nils Durner */
 
-#include <search.h>
-
-typedef enum
-  {
-    FIND,
-    ENTER
-  }
-ACTION;
-
-typedef struct entry
-  {
-    char *key;
-    void *data;
-  }
-ENTRY;
-
-struct hsearch_data
-  {
-    struct _ENTRY *table;
-    unsigned int size;
-    unsigned int filled;
-  };
+#include "plibc.h"
 
 
 /* The non-reentrant version use a global space for storing the table.  */
-static struct hsearch_data htab;
+static struct PLIBC_SEARCH_hsearch_data htab;
 
 /* Define the non-reentrant function using the reentrant counterparts.  */
-ENTRY *
-hsearch (item, action)
-     ENTRY item;
-     ACTION action;
+PLIBC_SEARCH_ENTRY *
+_win_hsearch (item, action)
+     PLIBC_SEARCH_ENTRY item;
+     PLIBC_SEARCH_ACTION action;
 {
-  ENTRY *result;
+  PLIBC_SEARCH_ENTRY *result;
 
-  (void) hsearch_r (item, action, &result, &htab);
+  (void) _win_hsearch_r (item, action, &result, &htab);
 
   return result;
 }
 
 
 int
-hcreate (nel)
+_win_hcreate (nel)
      size_t nel;
 {
-  return hcreate_r (nel, &htab);
+  return _win_hcreate_r (nel, &htab);
 }
 
 
 void
-__hdestroy ()
+_win_hdestroy ()
 {
-  hdestroy_r (&htab);
+  _win_hdestroy_r (&htab);
 }
