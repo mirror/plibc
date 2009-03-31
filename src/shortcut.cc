@@ -22,6 +22,13 @@
  * @brief symlink implementation for Windows
  */
 
+#ifdef __MINGW32__
+//define windows UUID manually because -luuid has no shared library (.DLL)
+#define INITGUID
+#include <basetyps.h>
+DEFINE_OLEGUID(IID_IPersistFile, 0x0000010BL, 0, 0);
+#endif
+
 #include "plibc_private.h"
 
 #include <shlobj.h>
