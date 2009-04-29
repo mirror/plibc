@@ -182,7 +182,7 @@ _win_hsearch_r (item, action, retval, htab)
     }
 
   /* An empty bucket has been found. */
-  if (action == ENTER)
+  if (action == PLIBC_SEARCH_ENTER)
     {
       /* If table is full and another entry should be entered return
 	 with error.  */
