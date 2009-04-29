@@ -602,16 +602,16 @@ trecurse (const void *vroot, PLIBC_SEARCH__action_fn_t action, int level)
   const_node root = (const_node) vroot;
 
   if (root->left == NULL && root->right == NULL)
-    (*action) (root, leaf, level);
+    (*action) (root, PLIBC_SEARCH_leaf, level);
   else
     {
-      (*action) (root, preorder, level);
+      (*action) (root, PLIBC_SEARCH_preorder, level);
       if (root->left != NULL)
 	trecurse (root->left, action, level + 1);
-      (*action) (root, postorder, level);
+      (*action) (root, PLIBC_SEARCH_postorder, level);
       if (root->right != NULL)
 	trecurse (root->right, action, level + 1);
-      (*action) (root, endorder, level);
+      (*action) (root, PLIBC_SEARCH_endorder, level);
     }
 }
 
