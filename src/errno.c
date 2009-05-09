@@ -380,191 +380,149 @@ void _SetErrnoFromWinError(long lWinError, char *pszCaller, int iLine)
 }
 
 /**
- * @brief Set errno according to a Winsock error
+ * @brief Get the errno corresponding to the Winsock error
  * @param lWinError Error code defined in winsock.h
  */
-void SetErrnoFromWinsockError(long lWinError)
+int GetErrnoFromWinsockError(long lWinError)
 {
   switch(lWinError)
   {
     case 0:
-      errno = 0;
-      break;
+      return 0;
+
     case WSAEINTR:
-      errno = EINTR;
-      break;
+      return EINTR;
 
     case WSAEWOULDBLOCK:
-      errno = EWOULDBLOCK;
-      break;
+      return EWOULDBLOCK;
 
     case WSAEINPROGRESS:
-      errno = EINPROGRESS;
-      break;
+      return EINPROGRESS;
 
     case WSAEALREADY:
-      errno = EALREADY;
-      break;
+      return EALREADY;
 
     case WSAENOTSOCK:
-      errno = ENOTSOCK;
-      break;
+      return ENOTSOCK;
 
     case WSAEDESTADDRREQ:
-      errno = EDESTADDRREQ;
-      break;
+      return EDESTADDRREQ;
 
     case WSAEMSGSIZE:
-      errno = EMSGSIZE;
-      break;
+      return EMSGSIZE;
 
     case WSAEPROTOTYPE:
-      errno = EPROTOTYPE;
-      break;
+      return EPROTOTYPE;
 
     case WSAENOPROTOOPT:
-      errno = ENOPROTOOPT;
-      break;
+      return ENOPROTOOPT;
 
     case WSAEPROTONOSUPPORT:
-      errno = EPROTONOSUPPORT;
-      break;
+      return EPROTONOSUPPORT;
 
     case WSAESOCKTNOSUPPORT:
-      errno = ESOCKTNOSUPPORT;
-      break;
+      return ESOCKTNOSUPPORT;
 
     case WSAEOPNOTSUPP:
-      errno = EOPNOTSUPP;
-      break;
+      return EOPNOTSUPP;
 
     case WSAEPFNOSUPPORT:
-      errno = EPFNOSUPPORT;
-      break;
+      return EPFNOSUPPORT;
 
     case WSAEAFNOSUPPORT:
-      errno = EAFNOSUPPORT;
-      break;
+      return EAFNOSUPPORT;
 
     case WSAEADDRINUSE:
-      errno = EADDRINUSE;
-      break;
+      return EADDRINUSE;
 
     case WSAEADDRNOTAVAIL:
-      errno = EADDRNOTAVAIL;
-      break;
+      return EADDRNOTAVAIL;
 
     case WSAENETDOWN:
-      errno = ENETDOWN;
-      break;
+      return ENETDOWN;
 
     case WSAENETUNREACH:
-      errno = ENETUNREACH;
-      break;
+      return ENETUNREACH;
 
     case WSAENETRESET:
-      errno = ENETRESET;
-      break;
+      return ENETRESET;
 
     case WSAECONNABORTED:
-      errno = ECONNABORTED;
-      break;
+      return ECONNABORTED;
 
     case WSAECONNRESET:
-      errno = ECONNRESET;
-      break;
+      return ECONNRESET;
 
     case WSAENOBUFS:
-      errno = ENOBUFS;
-      break;
+      return ENOBUFS;
 
     case WSAEISCONN:
-      errno = EISCONN;
-      break;
+      return EISCONN;
 
     case WSAENOTCONN:
-      errno = ENOTCONN;
-      break;
+      return ENOTCONN;
 
     case WSAESHUTDOWN:
-      errno = ESHUTDOWN;
-      break;
+      return ESHUTDOWN;
 
     case WSAETOOMANYREFS:
-      errno = ETOOMANYREFS;
-      break;
+      return ETOOMANYREFS;
 
     case WSAETIMEDOUT:
-      errno = ETIMEDOUT;
-      break;
+      return ETIMEDOUT;
 
     case WSAECONNREFUSED:
-      errno = ECONNREFUSED;
-      break;
+      return ECONNREFUSED;
 
     case WSAELOOP:
-      errno = ELOOP;
-      break;
+      return ELOOP;
 
     case WSAENAMETOOLONG:
-      errno = ENAMETOOLONG;
-      break;
+      return ENAMETOOLONG;
 
     case WSAEHOSTDOWN:
-      errno = EHOSTDOWN;
-      break;
+      return EHOSTDOWN;
 
     case WSAEHOSTUNREACH:
-      errno = EHOSTUNREACH;
-      break;
+      return EHOSTUNREACH;
 
     case WSAENOTEMPTY:
-      errno = ENOTEMPTY;
-      break;
+      return ENOTEMPTY;
 
     case WSAEPROCLIM:
-      errno = EPROCLIM;
-      break;
+      return EPROCLIM;
 
     case WSAEUSERS:
-      errno = EUSERS;
-      break;
+      return EUSERS;
 
     case WSAEDQUOT:
-      errno = EDQUOT;
-      break;
+      return EDQUOT;
 
     case WSAESTALE:
-      errno = ESTALE;
-      break;
+      return ESTALE;
 
     case WSAEREMOTE:
-      errno = EREMOTE;
-      break;
+      return EREMOTE;
 
     case WSAEINVAL:
-      errno = EINVAL;
-      break;
+      return EINVAL;
 
     case WSAEFAULT:
-      errno = EFAULT;
-      break;
+      return EFAULT;
 
     case WSANO_DATA:
-    	errno = ENODATA;
-    	break;
+    	return ENODATA;
 
     default:
     	{
     		char szPanic[1001];
 
-	      errno = ESTALE;
 	      _win_snprintf(szPanic, 1000, "Unknown error %i in " \
 	      		"SetErrnoFromWinsockError()\n", lWinError);
 	      szPanic[1000] = 0;
 	     	__plibc_panic(4, szPanic);
 
-	      break;
+	      return ESTALE;
     	}
   }
 }
@@ -636,6 +594,15 @@ void SetHErrnoFromWinError(long lWinError)
       WSASetLastError(NO_DATA);
       break;
   }
+}
+
+/**
+ * @brief Set errno according to a Winsock error
+ * @param lWinError Error code defined in winsock.h
+ */
+void SetErrnoFromWinsockError(long lWinError)
+{
+  errno = GetErrnoFromWinsockError(lWinError);
 }
 
 /* end of errno.c */

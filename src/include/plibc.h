@@ -357,6 +357,7 @@ void _SetErrnoFromWinError(long lWinError, char *pszCaller, int iLine);
 void SetErrnoFromWinsockError(long lWinError);
 void SetHErrnoFromWinError(long lWinError);
 void SetErrnoFromHRESULT(HRESULT hRes);
+int GetErrnoFromWinsockError(long lWinError);
 FILE *_win_fopen(const char *filename, const char *mode);
 DIR *_win_opendir(const char *dirname);
 int _win_open(const char *filename, int oflag, ...);

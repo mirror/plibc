@@ -96,6 +96,8 @@ int _win_getsockname(SOCKET s, struct sockaddr *name,
 int _win_getsockopt(SOCKET s, int level, int optname, char *optval, int *optlen)
 {
   int iRet = getsockopt(s, level, optname, optval, optlen);
+  if (iRet == 0 && level == SOL_SOCKET && optname == SO_ERROR)
+    *((int *) optval) = GetErrnoFromWinsockError(*((int *) optval));
 
   SetErrnoFromWinsockError(WSAGetLastError());
 
