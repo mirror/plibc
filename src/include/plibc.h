@@ -22,7 +22,7 @@
  * @brief PlibC header
  * @attention This file is usually not installed under Unix,
  *            so ship it with your application
- * @version $Revision: 1.46 $
+ * @version $Revision$
  */
 
 #ifndef _PLIBC_H_
