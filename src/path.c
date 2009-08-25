@@ -74,6 +74,7 @@ long _plibc_DetermineRootDir()
       {
         if (GetCurrentDirectory(sizeof(szRootDir), szRootDir) == 0)
           return ERROR_BAD_ENVIRONMENT;
+        lDirLen = strlen(szRootDir);
       }
     }
     strcat(szRootDir, "\\");
