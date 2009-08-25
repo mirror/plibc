@@ -78,7 +78,7 @@ long _plibc_DetermineRootDir()
       }
     }
     strcat(szRootDir, "\\");
-    lRootDirLen = lDirLen;
+    lRootDirLen = lDirLen + 1;
     szDrv[0] = 0;
   }
   else
