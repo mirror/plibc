@@ -125,6 +125,12 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
   if (! *pszShortcut)
     return TRUE;
 
+  if (GetFileAttributes (pszShortcut) & (FILE_ATTRIBUTE_DEVICE | FILE_ATTRIBUTE_DIRECTORY))
+    {
+      errno = EINVAL;
+      return FALSE;
+    }
+
   CoInitialize(NULL);
   szTarget[0] = 0;
   
