@@ -32,4 +32,12 @@ long _win_random(void)
 	return (long) rand();
 }
 
+/**
+ * @brief Initialize the PRNG
+ */
+void _win_srandom(unsigned seed)
+{
+  srand(seed);
+}
+
 /* end of random.c */

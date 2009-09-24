@@ -1,3 +1,6 @@
+2009-09-24	Nils Durner <ndurner@users.sourceforge.net>
+	* added SRANDOM()
+
 2009-05-18	Nils Durner <ndurner@users.sourceforge.net>
 	* avoid linking against libuuid
 	* rename CTIME() to PLIBC_CTIME()
