@@ -1,3 +1,9 @@
+2009-05-18	Nils Durner <ndurner@users.sourceforge.net>
+	* avoid linking against libuuid
+	* rename CTIME() to PLIBC_CTIME()
+	* return errno style error code from getsockopt()
+	* new: GetErrnoFromWinsockError()
+
 2009-03-30	Nils Durner <ndurner@users.sourceforge.net>
 	* renamed ctime(), ctime_r(), gettimeofday() and search.h functions to
 	  _win_*()
