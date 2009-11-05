@@ -263,12 +263,12 @@ int plibc_conv_to_win_path_ex(const char *pszUnix, char *pszWindows, int derefLi
     pSrc = (char *) pszUnix + 1;
   }
   /* Home dir? */
-  else if(strncmp(pszUnix, "~/", 2) == 0)
+  else if (pszUnix[0] == '~')
   {
     strcpy(pszWindows, szHomeDir);
     iSpaceUsed = lHomeDirLen;
     pDest = pszWindows + lHomeDirLen;
-    pSrc = (char *) pszUnix + 2;
+    pSrc = (char *) pszUnix + 1;
   }
   /* Home dir (env var)? */
   else if (strncmp(pszUnix, "$HOME", 5) == 0)
