@@ -95,6 +95,8 @@ struct stat64
 	#define pid_t int
 #endif
 
+typedef int error_t;
+
 #ifndef WEXITSTATUS
 	#define WEXITSTATUS(status) (((status) & 0xff00) >> 8)
 #endif
