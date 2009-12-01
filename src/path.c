@@ -228,13 +228,13 @@ int plibc_conv_to_win_path_ex(const char *pszUnix, char *pszWindows, int derefLi
   }
 
   /* Temp. dir? */
-  if(strncmp(pszUnix, "/tmp/", 5) == 0)
+  if(strncmp(pszUnix, "/tmp", 4) == 0)
   {
     iSpaceUsed = GetTempPath(_MAX_PATH, pszWindows);
     if (iSpaceUsed > _MAX_PATH)
       return ERROR_BUFFER_OVERFLOW;
     pDest = pszWindows + iSpaceUsed;
-    pSrc = (char *) pszUnix + 5;
+    pSrc = (char *) pszUnix + 4;
   }
   /* Bit bucket? */
   else if (strncmp(pszUnix, "/dev/null", 9) == 0)
@@ -245,9 +245,9 @@ int plibc_conv_to_win_path_ex(const char *pszUnix, char *pszWindows, int derefLi
     pSrc = (char *) pszUnix + 9;
   }
   /* Data directories */
-  else if (strncmp(pszUnix, "/etc/", 5) == 0 ||
-    strncmp(pszUnix, "/com/", 5) == 0 ||
-    strncmp(pszUnix, "/var/", 5) == 0)
+  else if (strncmp(pszUnix, "/etc", 4) == 0 ||
+    strncmp(pszUnix, "/com", 4) == 0 ||
+    strncmp(pszUnix, "/var", 4) == 0)
   {
     strcpy(pszWindows, szDataDir);
     iSpaceUsed = lDataDirLen;
