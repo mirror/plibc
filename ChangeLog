@@ -1,3 +1,6 @@
+2009-11-19	Nils Durner <ndurner@users.sourceforge.net>
+	* stpcpy()
+
 2009-11-05	Nils Durner	<ndurner@users.sourceforge.net>
 	* handle "~" at the beginning of a path
 	* releasing 0.1.5

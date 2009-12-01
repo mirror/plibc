@@ -446,6 +446,7 @@ char *strndup (const char *s, size_t n);
 #if !HAVE_STRNLEN
 size_t strnlen (const char *str, size_t maxlen);
 #endif
+char *stpcpy(char *dest, const char *src);
 
 #define strcasecmp(a, b) stricmp(a, b)
 #define strncasecmp(a, b, c) strnicmp(a, b, c)

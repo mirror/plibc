@@ -1,6 +1,6 @@
 /*
      This file is part of PlibC.
-     (C) 2005 Nils Durner (and other contributing authors)
+     (C) 2005, 2009 Nils Durner (and other contributing authors)
 
 	   This library is free software; you can redistribute it and/or
 	   modify it under the terms of the GNU Lesser General Public
@@ -160,6 +160,17 @@ size_t strnlen (const char *str, size_t maxlen)
 char *index(const char *s, int c)
 {
     return strchr(s, c);
+}
+
+/**
+ * @brief copy a string returning a pointer to its end
+ */
+char *stpcpy(char *dest, const char *src)
+{
+  size_t len;
+
+  len = strlen(src);
+  return (char *) memcpy(dest, src, len + 1) + len;
 }
 
 /* end of string.c */
