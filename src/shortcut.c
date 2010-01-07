@@ -18,7 +18,7 @@
 */
 
 /**
- * @file src/shortcut.cc
+ * @file src/shortcut.c
  * @brief symlink implementation for Windows
  */
 
@@ -33,8 +33,6 @@ DEFINE_OLEGUID(IID_IPersistFile, 0x0000010BL, 0, 0);
 
 #include <shlobj.h>
 #include <objbase.h>
-
-extern "C" {
 
 BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest)
 {
@@ -56,8 +54,8 @@ BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest)
     }
     
     /* Create Shortcut-Object */
-    if (CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-        IID_IShellLink, (void **) &pLink) != S_OK)
+    if (CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+        &IID_IShellLink, (void **) &pLink) != S_OK)
     {
       CoUninitialize();
       errno = ESTALE;
@@ -66,13 +64,13 @@ BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest)
     }
   
     /* Set target path */
-    pLink->SetPath(pszSrc);
+    pLink->lpVtbl->SetPath(pLink, pszSrc);
   
     /* Get File-Object */
-    if (pLink->QueryInterface(IID_IPersistFile, (void **) &pFile) != S_OK)
+    if (pLink->lpVtbl->QueryInterface(pLink, &IID_IPersistFile, (void **) &pFile) != S_OK)
     {
       free(pwszDest);
-      pLink->Release();
+      pLink->lpVtbl->Release(pLink);
       CoUninitialize();
       errno = ESTALE;
      
@@ -90,11 +88,11 @@ BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest)
     free(pszFileLnk);
     
     /* Save shortcut */
-    if (FAILED(hRes = pFile->Save((LPCOLESTR) pwszDest, TRUE)))
+    if (FAILED(hRes = pFile->lpVtbl->Save(pFile, (LPCOLESTR) pwszDest, TRUE)))
     {
       free(pwszDest);
-      pLink->Release();
-      pFile->Release();
+      pLink->lpVtbl->Release(pLink);
+      pFile->lpVtbl->Release(pFile);
       CoUninitialize();
       SetErrnoFromHRESULT(hRes);
   
@@ -103,8 +101,8 @@ BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest)
   
     free(pwszDest);
     
-    pFile->Release();
-    pLink->Release();
+    pFile->lpVtbl->Release(pLink);
+    pLink->lpVtbl->Release(pFile);
     CoUninitialize();
     errno = 0;
       
@@ -135,8 +133,8 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
   szTarget[0] = 0;
   
   /* Create Shortcut-Object */
-  if (CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-      IID_IShellLink, (void **) &pLink) != S_OK)
+  if (CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+      &IID_IShellLink, (void **) &pLink) != S_OK)
   {
     CoUninitialize();
     errno = ESTALE;
@@ -145,9 +143,9 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
   }
 
   /* Get File-Object */
-  if (pLink->QueryInterface(IID_IPersistFile, (void **) &pFile) != S_OK)
+  if (pLink->lpVtbl->QueryInterface(pLink, &IID_IPersistFile, (void **) &pFile) != S_OK)
   {
-    pLink->Release();
+    pLink->lpVtbl->Release(pLink);
     CoUninitialize();
     errno = ESTALE;
     
@@ -188,8 +186,8 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
       {
         errno = EINVAL;
         
-        pLink->Release();
-        pFile->Release();
+        pLink->lpVtbl->Release(pLink);
+        pFile->lpVtbl->Release(pFile);
         free(pwszShortcut);
         CoUninitialize();
         
@@ -200,12 +198,12 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
       
       hLink = CreateFile(pszLnk, GENERIC_READ, FILE_SHARE_READ |
                 FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-      SetErrnoFromWinError(GetLastError());      
+      SetErrnoFromWinError(GetLastError());
     }
     else
     {
-      pLink->Release();
-      pFile->Release();
+      pLink->lpVtbl->Release(pLink);
+      pFile->lpVtbl->Release(pFile);
       free(pwszShortcut);
       CoUninitialize();
       
@@ -216,10 +214,10 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
   MultiByteToWideChar(CP_ACP, 0, pszLnk, -1, pwszShortcut, _MAX_PATH);
   
   /* Open shortcut */
-  if (FAILED(hRes = pFile->Load((LPCOLESTR) pwszShortcut, STGM_READ)))
+  if (FAILED(hRes = pFile->lpVtbl->Load(pFile, (LPCOLESTR) pwszShortcut, STGM_READ)))
   {
-    pLink->Release();
-    pFile->Release();
+    pLink->lpVtbl->Release(pLink);
+    pFile->lpVtbl->Release(pFile);
     free(pwszShortcut);
     CoUninitialize();
     
@@ -256,10 +254,10 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
   free(pwszShortcut);
   
   /* Get target file */
-  if (FAILED(hRes = pLink->GetPath(szTarget, _MAX_PATH, NULL, 0)))
+  if (FAILED(hRes = pLink->lpVtbl->GetPath(pLink, szTarget, _MAX_PATH, NULL, 0)))
   {
-    pLink->Release();
-    pFile->Release();
+    pLink->lpVtbl->Release(pLink);
+    pFile->lpVtbl->Release(pFile);
     CoUninitialize();
     
     if (hRes == E_FAIL)
@@ -270,8 +268,8 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
     return FALSE;
   }
 
-  pFile->Release();
-  pLink->Release();
+  pFile->lpVtbl->Release(pFile);
+  pLink->lpVtbl->Release(pLink);
   CoUninitialize();
   errno = 0;
   
@@ -312,6 +310,4 @@ int __win_deref(char *path)
   return errno ? -1 : 0;
 }
 
-} // extern "C"
-
-/* end of shortcut.cc */
+/* end of shortcut.c */

@@ -44,7 +44,6 @@ AC_DEFINE_DIR([LOCALEDIR], [datadir/locale], [gettext catalogs])
 dnl Checks for programs.
 AC_PROG_INSTALL
 AC_PROG_CC
-AC_PROG_CXX
 
 # dynamic libraries
 AC_DISABLE_STATIC

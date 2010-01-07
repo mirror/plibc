@@ -1,3 +1,6 @@
+2010-01-07	Michael Lenaghan
+	* shortcut.cc is now plain C
+
 2009-12-01	Nils Durner <ndurner@users.sourceforge.net>
 	* translate top level paths that do not end with "/"
 	* define error_t
