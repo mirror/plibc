@@ -1,3 +1,6 @@
+2010-01-09	Nils Durner
+	* strcasestr()
+
 2010-01-07	Michael Lenaghan
 	* shortcut.cc is now plain C
 

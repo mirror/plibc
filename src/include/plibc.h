@@ -451,6 +451,7 @@ char *strndup (const char *s, size_t n);
 size_t strnlen (const char *str, size_t maxlen);
 #endif
 char *stpcpy(char *dest, const char *src);
+char *strcasestr(const char *haystack_start, const char *needle_start);
 
 #define strcasecmp(a, b) stricmp(a, b)
 #define strncasecmp(a, b, c) strnicmp(a, b, c)

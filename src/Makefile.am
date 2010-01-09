@@ -59,6 +59,8 @@ libplibc_la_SOURCES = \
  socket.c \
  stat.c \
  statfs.c \
+ str-two-way.h \
+ strcasestr.c \
  strerror.c \
  string.c \
  strptime.c \
