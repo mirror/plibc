@@ -1,6 +1,6 @@
 /*
      This file is part of PlibC.
-     (C) 2005, 2006, 2007, 2008, 2009 Nils Durner (and other contributing authors)
+     (C) 2005, 2006, 2007, 2008, 2009, 2010 Nils Durner (and other contributing authors)
 
 	   This library is free software; you can redistribute it and/or
 	   modify it under the terms of the GNU Lesser General Public
@@ -329,9 +329,9 @@ char *plibc_ChooseFile(char *pszTitle, unsigned long ulFlags);
 long QueryRegistry(HKEY hMainKey, char *pszKey, char *pszSubKey,
               char *pszBuffer, long *pdLength);
 
-BOOL __win_IsHandleMarkedAsBlocking(SOCKET hHandle);
-void __win_SetHandleBlockingMode(SOCKET s, BOOL bBlocking);
-void __win_DiscardHandleBlockingMode(SOCKET s);
+BOOL __win_IsHandleMarkedAsBlocking(int hHandle);
+void __win_SetHandleBlockingMode(int s, BOOL bBlocking);
+void __win_DiscardHandleBlockingMode(int s);
 int _win_isSocketValid(int s);
 int plibc_conv_to_win_path(const char *pszUnix, char *pszWindows);
 unsigned plibc_get_handle_count();
@@ -400,7 +400,7 @@ int _win_munmap(void *start, size_t length);
 int _win_lstat(const char *path, struct stat *buf);
 int _win_lstat64(const char *path, struct stat64 *buf);
 int _win_readlink(const char *path, char *buf, size_t bufsize);
-int _win_accept(SOCKET s, struct sockaddr *addr, int *addrlen);
+int _win_accept(int s, struct sockaddr *addr, int *addrlen);
 int _win_printf(const char *format,...);
 int _win_fprintf(FILE *f,const char *format,...);
 int _win_vprintf(const char *format, va_list ap);
@@ -416,27 +416,27 @@ int _win_vscanf(const char *format, va_list arg_ptr);
 int _win_scanf(const char *format, ...);
 int _win_fscanf(FILE *stream, const char *format, ...);
 pid_t _win_waitpid(pid_t pid, int *stat_loc, int options);
-int _win_bind(SOCKET s, const struct sockaddr *name, int namelen);
-int _win_connect(SOCKET s,const struct sockaddr *name, int namelen);
-int _win_getpeername(SOCKET s, struct sockaddr *name,
+int _win_bind(int s, const struct sockaddr *name, int namelen);
+int _win_connect(int s,const struct sockaddr *name, int namelen);
+int _win_getpeername(int s, struct sockaddr *name,
                 int *namelen);
-int _win_getsockname(SOCKET s, struct sockaddr *name,
+int _win_getsockname(int s, struct sockaddr *name,
                 int *namelen);
-int _win_getsockopt(SOCKET s, int level, int optname, char *optval,
+int _win_getsockopt(int s, int level, int optname, char *optval,
 				int *optlen);
-int _win_listen(SOCKET s, int backlog);
-int _win_recv(SOCKET s, char *buf, int len, int flags);
-int _win_recvfrom(SOCKET s, void *buf, int len, int flags,
+int _win_listen(int s, int backlog);
+int _win_recv(int s, char *buf, int len, int flags);
+int _win_recvfrom(int s, void *buf, int len, int flags,
              struct sockaddr *from, int *fromlen);
 int _win_select(int max_fd, fd_set * rfds, fd_set * wfds, fd_set * efds,
                 const struct timeval *tv);
-int _win_send(SOCKET s, const char *buf, int len, int flags);
-int _win_sendto(SOCKET s, const char *buf, int len, int flags,
+int _win_send(int s, const char *buf, int len, int flags);
+int _win_sendto(int s, const char *buf, int len, int flags,
                 const struct sockaddr *to, int tolen);
-int _win_setsockopt(SOCKET s, int level, int optname, const void *optval,
+int _win_setsockopt(int s, int level, int optname, const void *optval,
                     int optlen);
-int _win_shutdown(SOCKET s, int how);
-SOCKET _win_socket(int af, int type, int protocol);
+int _win_shutdown(int s, int how);
+int _win_socket(int af, int type, int protocol);
 struct hostent *_win_gethostbyaddr(const char *addr, int len, int type);
 struct hostent *_win_gethostbyname(const char *name);
 struct hostent *gethostbyname2(const char *name, int af);

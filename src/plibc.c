@@ -58,7 +58,7 @@ unsigned plibc_get_handle_count()
   return uiHandlesCount;
 }
 
-BOOL __win_IsHandleMarkedAsBlocking(SOCKET hHandle)
+BOOL __win_IsHandleMarkedAsBlocking(int hHandle)
 {
   BOOL bBlocking;
   unsigned int uiIndex;
@@ -78,7 +78,7 @@ BOOL __win_IsHandleMarkedAsBlocking(SOCKET hHandle)
   return bBlocking;
 }
 
-void __win_SetHandleBlockingMode(SOCKET s, BOOL bBlocking)
+void __win_SetHandleBlockingMode(int s, BOOL bBlocking)
 {
   unsigned int uiIndex = 0;
   int bFound = 0;
@@ -128,7 +128,7 @@ void __win_SetHandleBlockingMode(SOCKET s, BOOL bBlocking)
   ReleaseMutex(hSocksLock);
 }
 
-void __win_DiscardHandleBlockingMode(SOCKET s)
+void __win_DiscardHandleBlockingMode(int s)
 {
   unsigned int uiIndex;
 

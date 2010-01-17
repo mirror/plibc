@@ -27,32 +27,42 @@
 /**
  * @brief Accepts an incoming connection attempt on a socket
  */
-int _win_accept(SOCKET s, struct sockaddr *addr, int *addrlen)
+int _win_accept(int s, struct sockaddr *addr, int *addrlen)
 {
-  int iRet = accept(s, addr, addrlen);
+  SOCKET r;
+
+  r = accept(s, addr, addrlen);
 
   SetErrnoFromWinsockError(WSAGetLastError());
-  __win_SetHandleType((DWORD) iRet, SOCKET_HANDLE);
 
-  return iRet;
+  if (r == INVALID_SOCKET)
+    return -1;
+
+  __win_SetHandleType(r, SOCKET_HANDLE);
+
+  return r;
 }
 
 /**
  * @brief Accept a new connection on a socket
  */
-int _win_bind(SOCKET s, const struct sockaddr *name, int namelen)
+int _win_bind(int s, const struct sockaddr *name, int namelen)
 {
-  int iRet = bind(s, name, namelen);
+  SOCKET r;
+
+  r = bind(s, name, namelen);
+  if (r == INVALID_SOCKET)
+    return -1;
 
   SetErrnoFromWinsockError(WSAGetLastError());
 
-  return iRet;
+  return r;
 }
 
 /**
  * @brief Initiate a connection on a socket
  */
-int _win_connect(SOCKET s,const struct sockaddr *name, int namelen)
+int _win_connect(int s, const struct sockaddr *name, int namelen)
 {
   int iRet, iWSErr;
 
@@ -67,7 +77,7 @@ int _win_connect(SOCKET s,const struct sockaddr *name, int namelen)
 /**
  * @brief Get the name of the peer socket
  */
-int _win_getpeername(SOCKET s, struct sockaddr *name,
+int _win_getpeername(int s, struct sockaddr *name,
                 int *namelen)
 {
   int iRet = getpeername(s, name, namelen);
@@ -80,7 +90,7 @@ int _win_getpeername(SOCKET s, struct sockaddr *name,
 /**
  * @brief Get the socket name
  */
-int _win_getsockname(SOCKET s, struct sockaddr *name,
+int _win_getsockname(int s, struct sockaddr *name,
                 int *namelen)
 {
   int iRet = getsockname(s, name, namelen);
@@ -93,7 +103,7 @@ int _win_getsockname(SOCKET s, struct sockaddr *name,
 /**
  * @brief Get the socket options
  */
-int _win_getsockopt(SOCKET s, int level, int optname, char *optval, int *optlen)
+int _win_getsockopt(int s, int level, int optname, char *optval, int *optlen)
 {
   int iRet = getsockopt(s, level, optname, optval, optlen);
   if (iRet == 0 && level == SOL_SOCKET && optname == SO_ERROR)
@@ -107,7 +117,7 @@ int _win_getsockopt(SOCKET s, int level, int optname, char *optval, int *optlen)
 /**
  * @brief Listen for socket connections and limit the queue of incoming connections
  */
-int _win_listen(SOCKET s, int backlog)
+int _win_listen(int s, int backlog)
 {
   int iRet = listen(s, backlog);
 
@@ -119,7 +129,7 @@ int _win_listen(SOCKET s, int backlog)
 /**
  * @brief Receive a message from a connected socket
  */
-int _win_recv(SOCKET s, char *buf, int len, int flags)
+int _win_recv(int s, char *buf, int len, int flags)
 {
   int iRet = recv(s, buf, len, flags);
 
@@ -131,7 +141,7 @@ int _win_recv(SOCKET s, char *buf, int len, int flags)
 /**
  * @brief Receive a message from a socket
  */
-int _win_recvfrom(SOCKET s, void *buf, int len, int flags,
+int _win_recvfrom(int s, void *buf, int len, int flags,
              struct sockaddr *from, int *fromlen)
 {
   int iRet = recvfrom(s, buf, len, flags, from, fromlen);
@@ -144,7 +154,7 @@ int _win_recvfrom(SOCKET s, void *buf, int len, int flags,
 /**
  * @brief Send a message on a socket
  */
-int _win_send(SOCKET s, const char *buf, int len, int flags)
+int _win_send(int s, const char *buf, int len, int flags)
 {
   int iRet = send(s, buf, len, flags);
 
@@ -156,7 +166,7 @@ int _win_send(SOCKET s, const char *buf, int len, int flags)
 /**
  * @brief Send a message on a socket
  */
-int _win_sendto(SOCKET s, const char *buf, int len, int flags,
+int _win_sendto(int s, const char *buf, int len, int flags,
                 const struct sockaddr *to, int tolen)
 {
   int iRet = sendto(s, buf, len, flags, to, tolen);
@@ -169,7 +179,7 @@ int _win_sendto(SOCKET s, const char *buf, int len, int flags,
 /**
  * @brief Set the socket options
  */
-int _win_setsockopt(SOCKET s, int level, int optname, const void *optval,
+int _win_setsockopt(int s, int level, int optname, const void *optval,
                     int optlen)
 {
   int iRet = setsockopt(s, level, optname, (const char *) optval, optlen);
@@ -182,7 +192,7 @@ int _win_setsockopt(SOCKET s, int level, int optname, const void *optval,
 /**
  * @brief Shut down socket send and receive operations
  */
-int _win_shutdown(SOCKET s, int how)
+int _win_shutdown(int s, int how)
 {
   int iRet = shutdown(s, how);
 
@@ -194,7 +204,7 @@ int _win_shutdown(SOCKET s, int how)
 /**
  * @brief Create an endpoint for communication
  */
-SOCKET _win_socket(int af, int type, int protocol)
+int _win_socket(int af, int type, int protocol)
 {
   int iRet;
 
