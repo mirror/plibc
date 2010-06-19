@@ -73,8 +73,6 @@ extern "C" {
 #define socklen_t int
 #define ssize_t int
 #define off_t int
-#define int64_t long long
-#define int32_t long
 
 struct stat64
 {
