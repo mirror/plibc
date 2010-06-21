@@ -86,6 +86,13 @@ struct stat64
     __time64_t st_ctime;
 };
 
+typedef unsigned int sa_family_t;
+
+struct sockaddr_un {
+  short sun_family; /*AF_UNIX*/
+  char sun_path[108]; /*path name */
+};
+
 #ifndef pid_t
 	#define pid_t int
 #endif
