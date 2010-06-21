@@ -47,7 +47,7 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
   errno = 0;
 
   GetSystemInfo(&sys_info);
-  if ((flags & MAP_FIXED) && (start % sys_info.dwAllocationGranularity))
+  if ((flags & MAP_FIXED) && ((DWORD) start % sys_info.dwAllocationGranularity))
   {
     errno = EINVAL;
     return MAP_FAILED;
@@ -190,7 +190,7 @@ int _win_munmap(void *start, size_t length)
 
   ReleaseMutex(hMappingsLock);
 
-  return success ? 0 : MAP_FAILED;
+  return success ? 0 : -1;
 }
 
 /* end of mmap.c */
