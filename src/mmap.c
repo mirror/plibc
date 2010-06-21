@@ -41,8 +41,11 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
   void *base;
   BOOL bFound = FALSE;
   unsigned int uiIndex;
+  SYSTEM_INFO sys_info;
+  unsigned long long off_adj;
 
   errno = 0;
+  GetSystemInfo(&sys_info);
 
   switch(access)
   {
@@ -74,6 +77,21 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
     return MAP_FAILED;
   }
 
+  if (off < sys_info.dwAllocationGranularity)
+    off_adj = off;
+  else
+    off_adj = (off % sys_info.dwAllocationGranularity);
+
+  if (flags & MAP_FIXED && off_adj)
+  {
+    CloseHandle(h);
+    errno = EINVAL;
+    return MAP_FAILED;
+  }
+
+  off -= off_adj;
+  len += off_adj;
+
   high = off >> 32;
   low = off & ULONG_MAX;
   base = NULL;
@@ -95,6 +113,8 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
     CloseHandle(h);
     return MAP_FAILED;
   }
+
+  base += off_adj;
 
   /* Save mapping handle */
   WaitForSingleObject(hMappingsLock, INFINITE);
