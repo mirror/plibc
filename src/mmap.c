@@ -45,7 +45,13 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
   unsigned long long off_adj;
 
   errno = 0;
+
   GetSystemInfo(&sys_info);
+  if ((flags & MAP_FIXED) && (start % sys_info.dwAllocationGranularity))
+  {
+    errno = EINVAL;
+    return MAP_FAILED;
+  }
 
   switch(access)
   {
@@ -83,13 +89,6 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
     off_adj = off;
   else
     off_adj = (off % sys_info.dwAllocationGranularity);
-
-  if (flags & MAP_FIXED && off_adj)
-  {
-    CloseHandle(h);
-    errno = EINVAL;
-    return MAP_FAILED;
-  }
 
   off -= off_adj;
   len += off_adj;
