@@ -145,11 +145,12 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
 int _win_munmap(void *start, size_t length)
 {
   unsigned uiIndex;
-  BOOL success = UnmapViewOfFile(start);
-  SetErrnoFromWinError(GetLastError());
 
-  if (success)
+  if (UnmapViewOfFile(start))
   {
+    BOOL success = TRUE;
+    errno = 0;
+
     /* Release mapping handle */
     WaitForSingleObject(hMappingsLock, INFINITE);
 
@@ -167,9 +168,14 @@ int _win_munmap(void *start, size_t length)
     }
 
     ReleaseMutex(hMappingsLock);
-  }
 
-  return success ? 0 : MAP_FAILED;
+    return success ? 0 : MAP_FAILED;
+  }
+  else
+  {
+    SetErrnoFromWinError(GetLastError());
+    return MAP_FAILED;
+  }
 }
 
 /* end of mmap.c */
