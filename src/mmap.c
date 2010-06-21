@@ -77,6 +77,8 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
     return MAP_FAILED;
   }
 
+  /* Contrary to Unix, Windows expects alignment to the allocation
+     granularity, not the page size. */
   if (off < sys_info.dwAllocationGranularity)
     off_adj = off;
   else
@@ -139,6 +141,7 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
       if (pMappings[uiIndex].pStart == NULL)
       {
         pMappings[uiIndex].pStart = base;
+        pMappings[uiIndex].pMapBase = base - off_adj;
         pMappings[uiIndex].hMapping = h;
         
         inserted = 1;
@@ -165,37 +168,30 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
 int _win_munmap(void *start, size_t length)
 {
   unsigned uiIndex;
+  BOOL success = FALSE;
+  errno = 0;
 
-  if (UnmapViewOfFile(start))
+  /* Release mapping handle */
+  WaitForSingleObject(hMappingsLock, INFINITE);
+
+  for(uiIndex = 0; uiIndex <= uiMappingsCount; uiIndex++)
   {
-    BOOL success = TRUE;
-    errno = 0;
-
-    /* Release mapping handle */
-    WaitForSingleObject(hMappingsLock, INFINITE);
-
-    for(uiIndex = 0; uiIndex <= uiMappingsCount; uiIndex++)
+    if (pMappings[uiIndex].pStart == start)
     {
-      if (pMappings[uiIndex].pStart == start)
-      {
-        success = CloseHandle(pMappings[uiIndex].hMapping);
-        SetErrnoFromWinError(GetLastError());
-        pMappings[uiIndex].pStart = NULL;
-        pMappings[uiIndex].hMapping = NULL;
+      success = CloseHandle(pMappings[uiIndex].hMapping) &&
+          UnmapViewOfFile(pMappings[uiIndex].pMapBase);
+      SetErrnoFromWinError(GetLastError());
+      pMappings[uiIndex].pStart = NULL;
+      pMappings[uiIndex].pMapBase = NULL;
+      pMappings[uiIndex].hMapping = NULL;
 
-        break;
-      }
+      break;
     }
-
-    ReleaseMutex(hMappingsLock);
-
-    return success ? 0 : MAP_FAILED;
   }
-  else
-  {
-    SetErrnoFromWinError(GetLastError());
-    return MAP_FAILED;
-  }
+
+  ReleaseMutex(hMappingsLock);
+
+  return success ? 0 : MAP_FAILED;
 }
 
 /* end of mmap.c */
