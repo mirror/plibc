@@ -65,6 +65,7 @@ libplibc_la_SOURCES = \
  string.c \
  strptime.c \
  symlink.c \
+ sysconf.c \
  truncate.c \
  tsearch.c \
  unlink.c \

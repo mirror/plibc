@@ -109,6 +109,12 @@ struct sockaddr_un {
   #define MSG_DONTWAIT 0
 #endif
 
+enum
+{
+  _SC_PAGESIZE = 30,
+  _SC_PAGE_SIZE = 30
+};
+
 /* Thanks to the Cygwin project */
 #define ENOCSI 43	/* No CSI structure available */
 #define EL2HLT 44	/* Level 2 halted */
@@ -390,6 +396,7 @@ int _win_remove(const char *path);
 int _win_rename(const char *oldname, const char *newname);
 int _win_stat(const char *path, struct stat *buffer);
 int _win_stat64(const char *path, struct stat64 *buffer);
+long _win_sysconf(int name);
 int _win_unlink(const char *filename);
 int _win_write(int fildes, const void *buf, size_t nbyte);
 int _win_read(int fildes, void *buf, size_t nbyte);
@@ -491,6 +498,7 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
  #define RENAME(o, n) rename(o, n)
  #define STAT(p, b) stat(p, b)
  #define STAT64(p, b) stat64(p, b)
+ #define SYSCONF(n) sysconf(n)
  #define UNLINK(f) unlink(f)
  #define WRITE(f, b, n) write(f, b, n)
  #define READ(f, b, n) read(f, b, n)
@@ -585,6 +593,7 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
  #define RENAME(o, n) _win_rename(o, n)
  #define STAT(p, b) _win_stat(p, b)
  #define STAT64(p, b) _win_stat64(p, b)
+ #define SYSCONF(n) _win_sysconf(n)
  #define UNLINK(f) _win_unlink(f)
  #define WRITE(f, b, n) _win_write(f, b, n)
  #define READ(f, b, n) _win_read(f, b, n)

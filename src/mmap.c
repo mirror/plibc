@@ -41,17 +41,8 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
   void *base;
   BOOL bFound = FALSE;
   unsigned int uiIndex;
-  SYSTEM_INFO sys_info;
-  unsigned long long off_adj;
 
   errno = 0;
-
-  GetSystemInfo(&sys_info);
-  if ((flags & MAP_FIXED) && ((DWORD) start % sys_info.dwAllocationGranularity))
-  {
-    errno = EINVAL;
-    return MAP_FAILED;
-  }
 
   switch(access)
   {
@@ -83,16 +74,6 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
     return MAP_FAILED;
   }
 
-  /* Contrary to Unix, Windows expects alignment to the allocation
-     granularity, not the page size. */
-  if (off < sys_info.dwAllocationGranularity)
-    off_adj = off;
-  else
-    off_adj = (off % sys_info.dwAllocationGranularity);
-
-  off -= off_adj;
-  len += off_adj;
-
   high = off >> 32;
   low = off & ULONG_MAX;
   base = NULL;
@@ -114,8 +95,6 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
     CloseHandle(h);
     return MAP_FAILED;
   }
-
-  base += off_adj;
 
   /* Save mapping handle */
   WaitForSingleObject(hMappingsLock, INFINITE);
@@ -140,7 +119,6 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
       if (pMappings[uiIndex].pStart == NULL)
       {
         pMappings[uiIndex].pStart = base;
-        pMappings[uiIndex].pMapBase = base - off_adj;
         pMappings[uiIndex].hMapping = h;
         
         inserted = 1;
@@ -167,30 +145,37 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
 int _win_munmap(void *start, size_t length)
 {
   unsigned uiIndex;
-  BOOL success = FALSE;
-  errno = 0;
 
-  /* Release mapping handle */
-  WaitForSingleObject(hMappingsLock, INFINITE);
-
-  for(uiIndex = 0; uiIndex <= uiMappingsCount; uiIndex++)
+  if (UnmapViewOfFile(start))
   {
-    if (pMappings[uiIndex].pStart == start)
+    BOOL success = TRUE;
+    errno = 0;
+
+    /* Release mapping handle */
+    WaitForSingleObject(hMappingsLock, INFINITE);
+
+    for(uiIndex = 0; uiIndex <= uiMappingsCount; uiIndex++)
     {
-      success = CloseHandle(pMappings[uiIndex].hMapping) &&
-          UnmapViewOfFile(pMappings[uiIndex].pMapBase);
-      SetErrnoFromWinError(GetLastError());
-      pMappings[uiIndex].pStart = NULL;
-      pMappings[uiIndex].pMapBase = NULL;
-      pMappings[uiIndex].hMapping = NULL;
+      if (pMappings[uiIndex].pStart == start)
+      {
+        success = CloseHandle(pMappings[uiIndex].hMapping);
+        SetErrnoFromWinError(GetLastError());
+        pMappings[uiIndex].pStart = NULL;
+        pMappings[uiIndex].hMapping = NULL;
 
-      break;
+        break;
+      }
     }
+
+    ReleaseMutex(hMappingsLock);
+
+    return success ? 0 : MAP_FAILED;
   }
-
-  ReleaseMutex(hMappingsLock);
-
-  return success ? 0 : -1;
+  else
+  {
+    SetErrnoFromWinError(GetLastError());
+    return MAP_FAILED;
+  }
 }
 
 /* end of mmap.c */
