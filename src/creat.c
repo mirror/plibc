@@ -41,7 +41,8 @@ int _win_creat(const char *path, mode_t mode)
 
   /* _creat sets errno */
   iFD = _creat(szFile, mode);
-  __win_SetHandleType((DWORD) iFD, FD_HANDLE);
+  if (iFD != -1)
+    __win_SetHandleType((DWORD) iFD, FD_HANDLE);
   
   return iFD;
 }

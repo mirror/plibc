@@ -51,7 +51,8 @@ extern "C" {
 #endif
 
 #include <windows.h>
-#include <Ws2tcpip.h>
+#include <ws2tcpip.h>
+#include <sys/types.h>
 #include <time.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -69,10 +70,6 @@ extern "C" {
 /* Convert LARGE_INTEGER to double */
 #define Li2Double(x) ((double)((x).HighPart) * 4.294967296E9 + \
   (double)((x).LowPart))
-
-#define socklen_t int
-#define ssize_t int
-#define off_t int
 
 struct stat64
 {

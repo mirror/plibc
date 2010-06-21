@@ -58,7 +58,8 @@ int _win_open(const char *filename, int oflag, ...)
   oflag |= O_BINARY;
 
   iFD = open(szFile, oflag, mode);
-  __win_SetHandleType((DWORD) iFD, FD_HANDLE);
+  if (iFD != -1)
+    __win_SetHandleType((DWORD) iFD, FD_HANDLE);
   
   return iFD;
 }
