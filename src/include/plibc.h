@@ -94,7 +94,7 @@ struct sockaddr_un {
 };
 
 #ifndef pid_t
-	#define pid_t HANDLE
+  #define pid_t DWORD
 #endif
 
 #ifndef error_t
