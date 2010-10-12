@@ -564,7 +564,7 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
 #else
  #define DIR_SEPARATOR '\\'
  #define DIR_SEPARATOR_STR "\\"
- #define PATH_SEPARATOR ':'
+ #define PATH_SEPARATOR ';'
  #define PATH_SEPARATOR_STR ";"
  #define NEWLINE "\r\n"
 
