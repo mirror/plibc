@@ -47,4 +47,34 @@ int _win_pipe(int *phandles)
   }
 }
 
+/**
+ * Make a FIFO special file
+ * @todo use mode
+ */
+int _win_mkfifo(const char *path, mode_t mode)
+{
+  HANDLE ret;
+  SECURITY_ATTRIBUTES sec;
+
+  ZeroMemory(&sec, sizeof(sec));
+  sec.nLength = sizeof(sec);
+  sec.bInheritHandle = TRUE;
+
+  ret = CreateNamedPipe(path, PIPE_ACCESS_DUPLEX |
+      FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE, 1, 0, 0, 0, &sec);
+  if (ret == INVALID_HANDLE_VALUE)
+  {
+    SetErrnoFromWinError(GetLastError());
+
+    return -1;
+  }
+  else
+  {
+    errno = 0;
+    __win_SetHandleType((DWORD) ret, PIPE_HANDLE);
+
+    return 0;
+  }
+}
+
 /* end of pipe.c */
