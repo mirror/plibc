@@ -28,76 +28,33 @@
 #include <string.h>
 #include <stdarg.h>
 
-static char *wfmt(const char *fmt)
-{
-  char *ret;
-  char *idx;
-
-  ret = strdup(fmt);
-  while(idx = strstr(fmt, "%llu"))
-    memcpy(idx + 1, "I64", 3);
-
-  return ret;
-}
-
 int _win_vsnprintf(char* str, size_t size, const char *format, va_list arg_ptr)
 {
-  int ret;
-  char *fmt;
-
-  fmt = wfmt(str);
-  ret = vsnprintf(str, size, fmt, arg_ptr);
-  free(fmt);
-
-  return ret;
+  return vsnprintf(str, size, format, arg_ptr);
 }
 
 int _win_vsprintf(char *dest, const char *format, va_list arg_ptr)
 {
-  char *fmt;
-  int ret;
-
-  fmt = wfmt(format);
-  ret = vsprintf(dest, fmt, arg_ptr);
-  free(fmt);
-
-  return ret;
+  return vsprintf(dest, format, arg_ptr);
 }
 
 int _win_vfprintf(FILE *stream, const char *format, va_list arg_ptr)
 {
-  char *fmt;
-  int ret;
-
-  fmt = wfmt(format);
-  ret = vfprintf(stream, fmt, arg_ptr);
-  free(fmt);
-
-  return ret;
+  return vfprintf(stream, format, arg_ptr);
 }
 
 int _win_vprintf(const char *format, va_list ap)
 {
-  char *fmt;
-  int ret;
-
-  fmt = wfmt(format);
-  ret = vprintf(fmt, ap);
-  free(fmt);
-
-  return ret;
+  return vprintf(format, ap);
 }
 
 int _win_fprintf(FILE *f,const char *format, ...)
 {
-  char *fmt;
   int ret;
   va_list ap;
 
-  fmt = wfmt(format);
   va_start(ap, format);
-  ret = vfprintf(f, fmt, ap);
-  free(fmt);
+  ret = vfprintf(f, format, ap);
   va_end(ap);
 
   return ret;
@@ -105,42 +62,33 @@ int _win_fprintf(FILE *f,const char *format, ...)
 
 int _win_printf(const char *format, ...)
 {
-  char *fmt;
   int n;
   va_list arg_ptr;
 
   va_start(arg_ptr, format);
-  fmt = wfmt(format);
-  n = vprintf(fmt, arg_ptr);
-  free(fmt);
+  n = vprintf(format, arg_ptr);
   va_end(arg_ptr);
   return n;
 }
 
 int _win_snprintf(char *str, size_t size, const char *format, ...)
 {
-  char *fmt;
   int n;
   va_list arg_ptr;
 
   va_start(arg_ptr, format);
-  fmt = wfmt(format);
-  n = vsnprintf(str, size, fmt, arg_ptr);
-  free(fmt);
+  n = vsnprintf(str, size, format, arg_ptr);
   va_end(arg_ptr);
   return n;
 }
 
 int _win_sprintf(char *dest, const char *format, ...)
 {
-  char *fmt;
   int n;
   va_list arg_ptr;
 
-  fmt = wfmt(format);
   va_start(arg_ptr, format);
-  n = vsprintf(dest, fmt, arg_ptr);
-  free(fmt);
+  n = vsprintf(dest, format, arg_ptr);
   va_end(arg_ptr);
 
   return n;
@@ -148,63 +96,37 @@ int _win_sprintf(char *dest, const char *format, ...)
 
 int _win_vsscanf(const char* str, const char* format, va_list arg_ptr)
 {
-  int ret;
-  char *fmt;
-
-  fmt = wfmt(format);
-  ret = vsscanf(str, fmt, arg_ptr);
-  free(fmt);
-
-  return ret;
+  return vsscanf(str, format, arg_ptr);
 }
 
 int _win_sscanf(const char *str, const char *format, ...)
 {
-  char *fmt;
   int n;
   va_list arg_ptr;
 
   va_start(arg_ptr, format);
-  fmt = wfmt(format);
-  n = vsscanf(str,fmt,arg_ptr);
+  n = vsscanf(str, format, arg_ptr);
   va_end (arg_ptr);
   return n;
 }
 
 int _win_vfscanf(FILE *stream, const char *format, va_list arg_ptr)
 {
-  char *fmt;
-  int ret;
-
-  fmt = wfmt(format);
-  ret = vfscanf(stream, fmt, arg_ptr);
-  free(fmt);
-
-  return ret;
+  return vfscanf(stream, format, arg_ptr);
 }
 
 int _win_vscanf(const char *format, va_list arg_ptr)
 {
-  char *fmt;
-  int ret;
-
-  fmt = wfmt(format);
-  ret = vscanf(fmt, arg_ptr);
-  free(fmt);
-
-  return ret;
+  return vscanf(format, arg_ptr);
 }
 
 int _win_scanf(const char *format, ...)
 {
-  char *fmt;
   int n;
   va_list arg_ptr;
 
   va_start(arg_ptr, format);
-  fmt = wfmt(format);
-  n = fscanf(stdin, fmt, arg_ptr);
-  free(fmt);
+  n = fscanf(stdin, format, arg_ptr);
   va_end(arg_ptr);
 
   return n;
@@ -212,14 +134,11 @@ int _win_scanf(const char *format, ...)
 
 int _win_fscanf(FILE *stream, const char *format, ...)
 {
-  char *fmt;
   int n;
   va_list arg_ptr;
 
   va_start(arg_ptr, format);
-  fmt = wfmt(format);
-  n = vfscanf(stream, fmt, arg_ptr);
-  free(fmt);
+  n = vfscanf(stream, format, arg_ptr);
   va_end(arg_ptr);
 
   return n;

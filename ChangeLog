@@ -1,6 +1,6 @@
 2010-11-06	Nils Durner
 	* mkfifo()
-	* use Windows printf
+	* use MinGW printf
 
 2010-06-22	Nils Durner
 	* sysconf()
