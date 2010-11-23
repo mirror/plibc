@@ -38,11 +38,25 @@ long QueryRegistry(HKEY hMainKey, char *pszKey, char *pszSubKey,
 {
   HKEY hKey;
   long lRet;
+  long lBufferSize;
 
+  lBufferSize = *pdLength;
   if((lRet = RegOpenKeyEx(hMainKey, pszKey, 0, KEY_EXECUTE, &hKey)) ==
      ERROR_SUCCESS)
   {
     lRet = RegQueryValueEx(hKey, pszSubKey, 0, NULL, pszBuffer, pdLength);
+    if (lRet == ERROR_SUCCESS)
+    {
+      if (pszBuffer[*pdLength - 1] != 0)
+      {
+        if (*pdLength < lBufferSize)
+          pszBuffer[*pdLength] = 0;
+        else
+          lRet = ERROR_MORE_DATA;
+      }
+      else
+        *pdLength = strlen(pszBuffer);
+    }
 
     RegCloseKey(hKey);
   }
