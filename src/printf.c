@@ -310,7 +310,7 @@ int __v_printf(struct arg_printf* fn, const unsigned char *format, va_list arg_p
       format+=sz;
     }
     if (*format=='%') {
-      char buf[128];
+      char buf[2000];
       union { char*s; } u_str;
 #define s u_str.s
 
