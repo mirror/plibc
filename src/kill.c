@@ -32,17 +32,30 @@ int _win_kill(pid_t pid, int sig)
   if (sig == SIGKILL || sig == SIGTERM)
   {
     HANDLE h;
+    DWORD dw;
+    BOOL terminated;
     
-    h = OpenProcess(PROCESS_TERMINATE, FALSE, (DWORD) pid);
+    h = OpenProcess(PROCESS_TERMINATE | PROCESS_QUERY_INFORMATION, FALSE, (DWORD) pid);
     if (!h)
     {
       SetErrnoFromWinError(GetLastError());
       return -1;
     }
     
-    if (!TerminateProcess(h, 0))
+    if (GetExitCodeProcess(h, &dw) && dw != STILL_ACTIVE)
     {
-      SetErrnoFromWinError(GetLastError());
+      /* already killed */
+      CloseHandle(h);
+      return 0;
+    }
+
+    terminated = TerminateProcess(h, 0);
+    dw = GetLastError();
+    CloseHandle(h);
+
+    if (!terminated)
+    {
+      SetErrnoFromWinError(dw);
       return -1;      
     }
     else
