@@ -25,6 +25,8 @@
 #ifndef _LANGINFO_H_
 #define _LANGINFO_H_
 
+typedef int nl_item;
+
 /* Enumeration of locale items that can be queried with `nl_langinfo'. */
 enum
 {
