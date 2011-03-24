@@ -23,7 +23,7 @@
  */
 
 #include "plibc_private.h"
-#include <Commdlg.h>
+#include <commdlg.h>
 
 /* Remember the previously selected path */
 static char szFilename[_MAX_PATH + 1] = "\0";

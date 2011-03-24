@@ -44,6 +44,7 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <locale.h>
+#include <objbase.h>
 
 typedef struct {
   char *pStart;

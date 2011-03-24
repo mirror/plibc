@@ -26,6 +26,7 @@
 
 char *_win_bindtextdomain(const char *domainname, const char *dirname)
 {
+#ifdef HAVE_LIBINTL
   char szDirname[_MAX_PATH + 1];
   int i;
   
@@ -37,6 +38,10 @@ char *_win_bindtextdomain(const char *domainname, const char *dirname)
   }
 
   return bindtextdomain(domainname, szDirname);
+#else
+  errno = ENOSYS;
+  return NULL;
+#endif
 }
 
 /* end of intl.c */

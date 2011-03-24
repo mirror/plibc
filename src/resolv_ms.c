@@ -16,7 +16,7 @@ Revision History:
 --*/
 
 #include <winsock2.h>
-#include <Ws2tcpip.h>
+#include <ws2tcpip.h>
 #include <stdio.h>              // sprintf()
 #include <stdlib.h>             // calloc(), strtoul()
 #include <malloc.h>             // calloc()
