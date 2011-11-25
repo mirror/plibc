@@ -2,6 +2,7 @@
   * nl_item
   * fix cross-platform build
   * improved random number generator
+  * gmtime_r
 
 2010-11-06	Nils Durner
 	* mkfifo()

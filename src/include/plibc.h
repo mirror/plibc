@@ -360,6 +360,7 @@ const char *hstrerror(int err);
 int mkstemp(char *tmplate);
 char *strptime (const char *buf, const char *format, struct tm *tm);
 const char *inet_ntop(int af, const void *src, char *dst, size_t size);
+struct tm *gmtime_r(const time_t *clock, struct tm *result);
 
 int plibc_init(char *pszOrg, char *pszApp);
 void plibc_shutdown();
