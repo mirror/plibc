@@ -40,7 +40,7 @@ long _win_random(void)
  */
 void _win_srandom(unsigned int seed)
 {
-  glibc_weak_rand32_state = seed;
+  _plibc_weak_rand32_state = seed;
 }
 
 /* end of random.c */

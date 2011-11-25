@@ -1,3 +1,8 @@
+2011-11-25  Nils Durner
+  * nl_item
+  * fix cross-platform build
+  * improved random number generator
+
 2010-11-06	Nils Durner
 	* mkfifo()
 	* use MinGW printf
