@@ -24,20 +24,23 @@
 
 #include "plibc_private.h"
 
+static unsigned int _plibc_weak_rand32_state = 1;
+
 /**
  * @brief pseudo-random number function
  */
 long _win_random(void)
 {
-	return (long) rand();
+  _plibc_weak_rand32_state = ((_plibc_weak_rand32_state * 1103515245) + 12345) & 0x7fffffff;
+  return _plibc_weak_rand32_state;
 }
 
 /**
  * @brief Initialize the PRNG
  */
-void _win_srandom(unsigned seed)
+void _win_srandom(unsigned int seed)
 {
-  srand(seed);
+  glibc_weak_rand32_state = seed;
 }
 
 /* end of random.c */
