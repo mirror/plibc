@@ -20,6 +20,13 @@
 #include <stdint.h>
 #include <time.h>
 
+/* Copyright (C) 2002-2004   Manuel Novoa III    <mjn3@codepoet.org>
+ *
+ * GNU Library General Public License (LGPL) version 2 or later.
+ *
+ * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
+ */
+
 static const uint16_t _vals[] = {
         60, 60, 24, 7 /* special */, 36524, 1461, 365, 0
 };
