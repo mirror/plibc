@@ -26,6 +26,9 @@
 
 void _win_gettimeofday(struct timeval *tp, void *tzp)
 {
+#ifdef HAVE_GETTIMEOFDAY
+  gettimeofday (tp, tzp);
+#else
   struct _timeb theTime;
 
   errno = 0;
@@ -33,6 +36,7 @@ void _win_gettimeofday(struct timeval *tp, void *tzp)
   _ftime(&theTime);
   tp->tv_sec = theTime.time;
   tp->tv_usec = theTime.millitm * 1000;
+#endif
 }
 
 /* end of gettimeofday.c */

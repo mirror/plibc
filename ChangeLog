@@ -1,3 +1,7 @@
+2011-11-30  LRN
+  * msync()
+  * MinGW64 fixes
+
 2011-11-25  Nils Durner
   * nl_item
   * fix cross-platform build

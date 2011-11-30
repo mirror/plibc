@@ -49,6 +49,7 @@
 typedef struct {
   char *pStart;
   HANDLE hMapping;
+  HANDLE hFile;
 } TMapping;
 
 typedef struct

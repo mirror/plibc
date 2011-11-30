@@ -33,7 +33,7 @@
  * @param pdLength receives size of returned string
  * @return Error code from winerror.h, ERROR_SUCCESS on success
  */
-long QueryRegistry(HKEY hMainKey, char *pszKey, char *pszSubKey,
+long QueryRegistry(HKEY hMainKey, const char *pszKey, const char *pszSubKey,
               char *pszBuffer, long *pdLength)
 {
   HKEY hKey;

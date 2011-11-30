@@ -25,6 +25,10 @@
 #ifndef _LANGINFO_H_
 #define _LANGINFO_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef int nl_item;
 
 /* Enumeration of locale items that can be queried with `nl_langinfo'. */
@@ -159,5 +163,9 @@ enum
 };
 
 char *nl_langinfo(int item);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_LANGINFO_H_

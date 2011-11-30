@@ -31,6 +31,7 @@ DEFINE_OLEGUID(IID_IPersistFile, 0x0000010BL, 0, 0);
 
 #include "plibc_private.h"
 
+#include <shlguid.h>
 #include <shlobj.h>
 #include <objbase.h>
 
@@ -101,8 +102,8 @@ BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest)
   
     free(pwszDest);
     
-    pFile->lpVtbl->Release(pLink);
-    pLink->lpVtbl->Release(pFile);
+    pFile->lpVtbl->Release(pFile);
+    pLink->lpVtbl->Release(pLink);
     CoUninitialize();
     errno = 0;
       

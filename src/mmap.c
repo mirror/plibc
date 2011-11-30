@@ -111,6 +111,16 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
   if (! bFound)
   {
     int inserted = 0;
+    HANDLE hOwnFile;
+
+    if (!DuplicateHandle (GetCurrentProcess (), hFile, GetCurrentProcess (),
+        &hOwnFile, 0, FALSE, DUPLICATE_SAME_ACCESS))
+    {
+      ReleaseMutex(hMappingsLock);
+      SetErrnoFromWinError(GetLastError());
+      CloseHandle(h);
+      return MAP_FAILED;
+    }
     
     uiIndex = 0;
 
@@ -120,7 +130,7 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
       {
         pMappings[uiIndex].pStart = base;
         pMappings[uiIndex].hMapping = h;
-        
+        pMappings[uiIndex].hFile = hOwnFile;
         inserted = 1;
       }
       if (uiIndex == uiMappingsCount)
@@ -135,6 +145,53 @@ void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
   ReleaseMutex(hMappingsLock);
 
   return base;
+}
+
+int _win_msync(void *start, size_t length, int flags)
+{
+  unsigned uiIndex;
+  /* Can't have sync and async at the same time */
+  if ((flags & MS_SYNC) && (flags & MS_ASYNC))
+  {
+    errno = EINVAL;
+    return -1;
+  }
+  /* Not sure what to make of it. It's either the default, or unsupported */
+  if (flags & MS_INVALIDATE)
+  {
+    errno = ENOSYS;
+    return -1;
+  }
+
+  if (FlushViewOfFile (start, length))
+  {
+    BOOL success = TRUE;
+    errno = 0;
+
+    if (flags & MS_SYNC)
+    {
+      /* Flush to the file */
+      WaitForSingleObject(hMappingsLock, INFINITE);
+
+      for(uiIndex = 0; uiIndex <= uiMappingsCount; uiIndex++)
+      {
+        if (pMappings[uiIndex].pStart == start)
+        {
+          success = FlushFileBuffers (pMappings[uiIndex].hFile);
+          SetErrnoFromWinError(GetLastError());
+          break;
+        }
+      }
+
+      ReleaseMutex(hMappingsLock);
+    }
+    return success ? 0 : -1;
+  }
+  else
+  {
+    SetErrnoFromWinError(GetLastError());
+    return -1;
+  }
 }
 
 /**
@@ -158,10 +215,28 @@ int _win_munmap(void *start, size_t length)
     {
       if (pMappings[uiIndex].pStart == start)
       {
-        success = CloseHandle(pMappings[uiIndex].hMapping);
-        SetErrnoFromWinError(GetLastError());
+        DWORD error;
+
+        error = NO_ERROR;
+
+        if (!CloseHandle(pMappings[uiIndex].hMapping))
+        {
+          success = FALSE;
+          error = GetLastError();
+        }
+
+        if (!CloseHandle(pMappings[uiIndex].hFile))
+        {
+          success = FALSE;
+          error = GetLastError();
+        }
+
+        if (error != NO_ERROR)
+          SetErrnoFromWinError(error);
+
         pMappings[uiIndex].pStart = NULL;
         pMappings[uiIndex].hMapping = NULL;
+        pMappings[uiIndex].hFile = NULL;
 
         break;
       }

@@ -668,7 +668,7 @@ int _win_vsprintf(char *dest, const char *format, va_list arg_ptr)
   return _win_vsnprintf(dest,(size_t)-1,format,arg_ptr);
 }
 
-static int __fwrite(void*ptr, size_t nmemb, int fd) {
+static int __fwrite(void*ptr, size_t nmemb, void *fd) {
   return fwrite(ptr, 1, nmemb, fd);
 }
 

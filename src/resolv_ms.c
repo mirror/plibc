@@ -15,6 +15,7 @@ Revision History:
 
 --*/
 
+#include "plibc_private.h"
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>              // sprintf()
@@ -949,7 +950,7 @@ getaddrinfo(
 }
 
 
-
+#ifndef HAVE_GETNAMEINFO
 __inline
 int
 getnameinfo (
@@ -968,7 +969,7 @@ getnameinfo (
     return ((*pfGetNameInfo)
             (sa, salen, host, hostlen, serv, servlen, flags));
 }
-
+#endif
 
 
 __inline

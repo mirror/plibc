@@ -50,8 +50,8 @@ extern "C" {
   #include "langinfo.h"
 #endif
 
-#include <windows.h>
 #include <ws2tcpip.h>
+#include <windows.h>
 #include <sys/types.h>
 #include <time.h>
 #include <stdio.h>
@@ -70,7 +70,7 @@ extern "C" {
 /* Convert LARGE_INTEGER to double */
 #define Li2Double(x) ((double)((x).HighPart) * 4.294967296E9 + \
   (double)((x).LowPart))
-
+#ifndef __MINGW64__
 struct stat64
 {
     _dev_t st_dev;
@@ -85,7 +85,7 @@ struct stat64
     __time64_t st_mtime;
     __time64_t st_ctime;
 };
-
+#endif
 typedef unsigned int sa_family_t;
 
 struct sockaddr_un {
@@ -226,7 +226,12 @@ enum
 #define MAP_SHARED  0x1
 #define MAP_PRIVATE 0x2 /* unsupported */
 #define MAP_FIXED   0x10
+#define MAP_ANONYMOUS 0x20 /* unsupported */
 #define MAP_FAILED  ((void *)-1)
+
+#define MS_ASYNC        1       /* sync memory asynchronously */
+#define MS_INVALIDATE   2       /* invalidate the caches */
+#define MS_SYNC         4       /* synchronous memory sync */
 
 struct statfs
 {
@@ -334,7 +339,7 @@ BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest);
 BOOL _plibc_DereferenceShortcut(char *pszShortcut);
 char *plibc_ChooseDir(char *pszTitle, unsigned long ulFlags);
 char *plibc_ChooseFile(char *pszTitle, unsigned long ulFlags);
-long QueryRegistry(HKEY hMainKey, char *pszKey, char *pszSubKey,
+long QueryRegistry(HKEY hMainKey, const char *pszKey, const char *pszSubKey,
               char *pszBuffer, long *pdLength);
 
 BOOL __win_IsHandleMarkedAsBlocking(int hHandle);
@@ -406,6 +411,7 @@ size_t _win_fread( void *buffer, size_t size, size_t count, FILE *stream );
 int _win_symlink(const char *path1, const char *path2);
 void *_win_mmap(void *start, size_t len, int access, int flags, int fd,
                 unsigned long long offset);
+int _win_msync(void *start, size_t length, int flags);
 int _win_munmap(void *start, size_t length);
 int _win_lstat(const char *path, struct stat *buf);
 int _win_lstat64(const char *path, struct stat64 *buf);
@@ -462,10 +468,10 @@ size_t strnlen (const char *str, size_t maxlen);
 #endif
 char *stpcpy(char *dest, const char *src);
 char *strcasestr(const char *haystack_start, const char *needle_start);
-
+#ifndef __MINGW64__
 #define strcasecmp(a, b) stricmp(a, b)
 #define strncasecmp(a, b, c) strnicmp(a, b, c)
-
+#endif
 #endif /* WINDOWS */
 
 #ifndef WINDOWS
@@ -508,6 +514,7 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
  #define SYMLINK(a, b) symlink(a, b)
  #define MMAP(s, l, p, f, d, o) mmap(s, l, p, f, d, o)
  #define MKFIFO(p, m) mkfifo(p, m)
+ #define MSYNC(s, l, f) msync(s, l, f)
  #define MUNMAP(s, l) munmap(s, l)
  #define STRERROR(i) strerror(i)
  #define RANDOM() random()
@@ -604,6 +611,7 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
  #define SYMLINK(a, b) _win_symlink(a, b)
  #define MMAP(s, l, p, f, d, o) _win_mmap(s, l, p, f, d, o)
  #define MKFIFO(p, m) _win_mkfifo(p, m)
+ #define MSYNC(s, l, f) _win_msync(s, l, f)
  #define MUNMAP(s, l) _win_munmap(s, l)
  #define STRERROR(i) _win_strerror(i)
  #define READLINK(p, b, s) _win_readlink(p, b, s)
