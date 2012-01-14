@@ -950,7 +950,7 @@ getaddrinfo(
 }
 
 
-#ifndef HAVE_GETNAMEINFO
+#ifndef HAVE_DECL_GETNAMEINFO
 __inline
 int
 getnameinfo (

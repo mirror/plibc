@@ -15,27 +15,21 @@ ISODATE=`date +%Y-%m-%d`
 AC_SUBST(ISODATE)
 
 AC_CANONICAL_HOST
+AC_CANONICAL_TARGET
 
 # Check system type
-case "$host_os" in
+case "$target_os" in
 *cygwin*)
      AC_DEFINE_UNQUOTED(WINDOWS,1,[This is a Windows system])
      AC_DEFINE_UNQUOTED(_WIN32,1,[This is a Windows system])
-     build_target="windows"
      ;;
 *mingw*)
      AC_DEFINE_UNQUOTED(WINDOWS,1,[This is a Windows system])
      AC_DEFINE_UNQUOTED(_WIN32,1,[This is a Windows system])
-     build_target="windows"
      ;;
 *)
-     build_target="unix"
 ;;
 esac
-
-AC_MSG_CHECKING([for build target])
-AM_CONDITIONAL(WINDOWS,  test "$build_target" = "windows")
-AC_MSG_RESULT([$build_target])
 
 # We define the paths here, because MinGW/GCC expands paths
 # passed through the command line ("-DLOCALEDIR=..."). This would
@@ -64,7 +58,8 @@ dnl Checks for libraries.
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(unistd.h sys/param.h sys/time.h time.h sys/mkdev.h sys/sysmacros.h string.h memory.h fcntl.h dirent.h sys/ndir.h ndir.h alloca.h locale.h )
-AC_CHECK_FUNCS(ftruncate getnameinfo gettimeofday)
+AC_CHECK_FUNCS(ftruncate gettimeofday)
+AC_CHECK_DECLS(getnameinfo, [], [], [[#include <tcpip.h>]])
 
 AC_HEADER_MAJOR
 AC_FUNC_ALLOCA
