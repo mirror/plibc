@@ -1,3 +1,6 @@
+2012-05-05  Richard Boulton
+  * pthreads compatibility
+
 2011-11-30  LRN
   * msync()
   * MinGW64 fixes
