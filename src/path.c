@@ -357,7 +357,10 @@ int plibc_conv_to_win_pathw_ex(const wchar_t *pszUnix, wchar_t *pszWindows, int 
   *pDest = 0;
 
   if (derefLinks)
+  {
     __win_derefw(pszWindows);
+    errno = 0;
+  }
   else
   {
     /* The filename possibly refers to a symlink, but the .lnk extension may be
