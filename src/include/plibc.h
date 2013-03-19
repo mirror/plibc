@@ -336,17 +336,29 @@ typedef struct
 #define SetErrnoFromWinError(e) _SetErrnoFromWinError(e, __FILE__, __LINE__)
 
 BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest);
+BOOL _plibc_CreateShortcutW(const wchar_t *pwszSrc, const wchar_t *pwszDest);
 BOOL _plibc_DereferenceShortcut(char *pszShortcut);
+BOOL _plibc_DereferenceShortcutW(wchar_t *pwszShortcut);
 char *plibc_ChooseDir(char *pszTitle, unsigned long ulFlags);
+wchar_t *plibc_ChooseDirW(wchar_t *pwszTitle, unsigned long ulFlags);
 char *plibc_ChooseFile(char *pszTitle, unsigned long ulFlags);
+wchar_t *plibc_ChooseFileW(wchar_t *pwszTitle, unsigned long ulFlags);
+
 long QueryRegistry(HKEY hMainKey, const char *pszKey, const char *pszSubKey,
               char *pszBuffer, long *pdLength);
+long QueryRegistryW(HKEY hMainKey, const wchar_t *pszKey, const wchar_t *pszSubKey,
+              wchar_t *pszBuffer, long *pdLength);
 
 BOOL __win_IsHandleMarkedAsBlocking(int hHandle);
 void __win_SetHandleBlockingMode(int s, BOOL bBlocking);
 void __win_DiscardHandleBlockingMode(int s);
 int _win_isSocketValid(int s);
 int plibc_conv_to_win_path(const char *pszUnix, char *pszWindows);
+int plibc_conv_to_win_pathw(const wchar_t *pszUnix, wchar_t *pwszWindows);
+
+int plibc_conv_to_win_pathwconv(const char *pszUnix, wchar_t *pwszWindows);
+int plibc_conv_to_win_pathwconv_ex(const char *pszUnix, wchar_t *pszWindows, int derefLinks);
+
 unsigned plibc_get_handle_count();
 
 typedef void (*TPanicProc) (int, char *);
@@ -370,16 +382,20 @@ struct tm *gmtime_r(const time_t *clock, struct tm *result);
 #endif
 
 int plibc_init(char *pszOrg, char *pszApp);
+int plibc_init_utf8(char *pszOrg, char *pszApp, int utf8_mode);
 void plibc_shutdown();
 int plibc_initialized();
-int plibc_conv_to_win_path_ex(const char *pszUnix, char *pszWindows, int derefLinks);
+
 void _SetErrnoFromWinError(long lWinError, char *pszCaller, int iLine);
 void SetErrnoFromWinsockError(long lWinError);
 void SetHErrnoFromWinError(long lWinError);
 void SetErrnoFromHRESULT(HRESULT hRes);
 int GetErrnoFromWinsockError(long lWinError);
 FILE *_win_fopen(const char *filename, const char *mode);
+int _win_fclose(FILE *);
 DIR *_win_opendir(const char *dirname);
+struct dirent *_win_readdir(DIR *dirp);
+int _win_closedir(DIR *dirp);
 int _win_open(const char *filename, int oflag, ...);
 #ifdef ENABLE_NLS
 char *_win_bindtextdomain(const char *domainname, const char *dirname);
@@ -419,20 +435,50 @@ int _win_lstat(const char *path, struct stat *buf);
 int _win_lstat64(const char *path, struct stat64 *buf);
 int _win_readlink(const char *path, char *buf, size_t bufsize);
 int _win_accept(int s, struct sockaddr *addr, int *addrlen);
+
 int _win_printf(const char *format,...);
+int _win_wprintf(const wchar_t *format, ...);
+
 int _win_fprintf(FILE *f,const char *format,...);
+int _win_fwprintf(FILE *f,const wchar_t *format, ...);
+
 int _win_vprintf(const char *format, va_list ap);
+int _win_vfwprintf(FILE *stream, const wchar_t *format, va_list arg_ptr);
+
 int _win_vfprintf(FILE *stream, const char *format, va_list arg_ptr);
+int _win_vwprintf(const wchar_t *format, va_list ap);
+
 int _win_vsprintf(char *dest,const char *format, va_list arg_ptr);
+int _win_vswprintf(wchar_t *dest, const wchar_t *format, va_list arg_ptr);
+
 int _win_vsnprintf(char* str, size_t size, const char *format, va_list arg_ptr);
+int _win_vsnwprintf(wchar_t* wstr, size_t size, const wchar_t *format, va_list arg_ptr);
+
 int _win_snprintf(char *str,size_t size,const char *format,...);
+int _win_snwprintf(wchar_t *str, size_t size, const wchar_t *format, ...);
+
 int _win_sprintf(char *dest,const char *format,...);
+int _win_swprintf(wchar_t *dest, const wchar_t *format, ...);
+
 int _win_vsscanf(const char* str, const char* format, va_list arg_ptr);
+int _win_vswscanf(const wchar_t* wstr, const wchar_t* format, va_list arg_ptr);
+
 int _win_sscanf(const char *str, const char *format, ...);
+int _win_swscanf(const wchar_t *wstr, const wchar_t *format, ...);
+
 int _win_vfscanf(FILE *stream, const char *format, va_list arg_ptr);
+int _win_vfwscanf(FILE *stream, const wchar_t *format, va_list arg_ptr);
+
 int _win_vscanf(const char *format, va_list arg_ptr);
+int _win_vwscanf(const wchar_t *format, va_list arg_ptr);
+
 int _win_scanf(const char *format, ...);
+int _win_wscanf(const wchar_t *format, ...);
+
 int _win_fscanf(FILE *stream, const char *format, ...);
+int _win_fwscanf(FILE *stream, const wchar_t *format, ...);
+
+
 pid_t _win_waitpid(pid_t pid, int *stat_loc, int options);
 int _win_bind(int s, const struct sockaddr *name, int namelen);
 int _win_connect(int s,const struct sockaddr *name, int namelen);
@@ -472,7 +518,9 @@ char *stpcpy(char *dest, const char *src);
 char *strcasestr(const char *haystack_start, const char *needle_start);
 #ifndef __MINGW64__
 #define strcasecmp(a, b) stricmp(a, b)
+#define wcscasecmp(a, b) wcsicmp(a, b)
 #define strncasecmp(a, b, c) strnicmp(a, b, c)
+#define wcsncasecmp(a, b, c) wcsnicmp(a, b, c)
 #endif
 #endif /* WINDOWS */
 
@@ -491,8 +539,11 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
  #define CTIME_R(c, b) ctime_r(c, b)
  #undef FOPEN
  #define FOPEN(f, m) fopen(f, m)
+ #define FCLOSE(f) fclose(f)
  #define FTRUNCATE(f, l) ftruncate(f, l)
  #define OPENDIR(d) opendir(d)
+ #define CLOSEDIR(d) closedir(d)
+ #define READDIR(d) readdir(d)
  #define OPEN open
  #define CHDIR(d) chdir(d)
  #define CLOSE(f) close(f)
@@ -586,8 +637,11 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
  #define PLIBC_CTIME(c) _win_ctime(c)
  #define CTIME_R(c, b) _win_ctime_r(c, b)
  #define FOPEN(f, m) _win_fopen(f, m)
+ #define FCLOSE(f) _win_fclose(f)
  #define FTRUNCATE(f, l) _win_ftruncate(f, l)
  #define OPENDIR(d) _win_opendir(d)
+ #define CLOSEDIR(d) _win_closedir(d)
+ #define READDIR(d) _win_readdir(d)
  #define OPEN _win_open
  #define CHDIR(d) _win_chdir(d)
  #define CLOSE(f) _win_close(f)

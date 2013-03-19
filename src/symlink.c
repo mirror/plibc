@@ -29,24 +29,41 @@
  **/
 int _win_symlink(const char *path1, const char *path2)
 {
-  char szFile1[_MAX_PATH + 1], szFile2[_MAX_PATH + 1];
   long lRet;
-
-  if ((lRet = plibc_conv_to_win_path(path1, szFile1)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
   {
-    SetErrnoFromWinError(lRet);
-    return -1;
+    wchar_t szFile1[_MAX_PATH + 1], szFile2[_MAX_PATH + 1];
+    if ((lRet = plibc_conv_to_win_pathwconv(path1, szFile1)) != ERROR_SUCCESS)
+    {
+      SetErrnoFromWinError(lRet);
+      return -1;
+    }
+    if ((lRet = plibc_conv_to_win_pathwconv_ex(path2, szFile2, 0)) != ERROR_SUCCESS)
+    {
+      SetErrnoFromWinError(lRet);
+      return -1;
+    }
+  
+    /* CreateShortcut sets errno */
+    lRet = _plibc_CreateShortcutW(szFile1, szFile2);
   }
-
-  if ((lRet = plibc_conv_to_win_path_ex(path2, szFile2, 0)) != ERROR_SUCCESS)
+  else
   {
-    SetErrnoFromWinError(lRet);
-    return -1;
+    char szFile1[_MAX_PATH + 1], szFile2[_MAX_PATH + 1];
+    if ((lRet = plibc_conv_to_win_path(path1, szFile1)) != ERROR_SUCCESS)
+    {
+      SetErrnoFromWinError(lRet);
+      return -1;
+    }
+    if ((lRet = plibc_conv_to_win_path_ex(path2, szFile2, 0)) != ERROR_SUCCESS)
+    {
+      SetErrnoFromWinError(lRet);
+      return -1;
+    }
+
+    /* CreateShortcut sets errno */
+    lRet = _plibc_CreateShortcut(szFile1, szFile2);
   }
-
-  /* CreateShortcut sets errno */
-  lRet = _plibc_CreateShortcut(szFile1, szFile2);
-
   return lRet ? 0 : -1;
 }
 

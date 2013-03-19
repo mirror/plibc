@@ -23,17 +23,26 @@
  */
 
 #include "plibc_private.h"
+#include "plibc_strconv.h"
 
 #define DEBUG_WINPROC 0
 
-char szRootDir[_MAX_PATH + 1] = "";
+wchar_t szRootDir[_MAX_PATH + 1] = L"";
 long lRootDirLen;
-char szDataDir[_MAX_PATH + 1] = "";
+char szuRootDir[_MAX_PATH + 1] = "";
+long luRootDirLen;
+wchar_t szDataDir[_MAX_PATH + 1] = L"";
 long lDataDirLen;
-char szHomeDir[_MAX_PATH + 2] = "";
+char szuDataDir[_MAX_PATH + 1] = "";
+long luDataDirLen;
+wchar_t szHomeDir[_MAX_PATH + 2] = L"";
 long lHomeDirLen;
-char szUser[261] = "";
-char *_pszOrg = NULL, *_pszApp = NULL;
+char szuHomeDir[_MAX_PATH + 2] = "";
+long luHomeDirLen;
+wchar_t szUser[261] = L"";
+char szuUser[261] = "";
+wchar_t *_pwszOrg = NULL, *_pwszApp = NULL;
+char *_pszuOrg = NULL, *_pszuApp = NULL;
 OSVERSIONINFO theWinVersion;
 unsigned int uiSockCount = 0;
 Winsock *pSocks = NULL;
@@ -47,6 +56,9 @@ TPanicProc __plibc_panic = NULL;
 int iInit = 0;
 HMODULE hMsvcrt = NULL;
 TStat64 _plibc_stat64 = NULL;
+TWStat64 _plibc_wstat64 = NULL;
+static int _plibc_utf8_mode = 0;
+int plibc_utf8_mode() { return _plibc_utf8_mode; }
 
 static HINSTANCE hIphlpapi, hAdvapi;
 
@@ -262,14 +274,30 @@ int plibc_initialized()
 */
 int plibc_init(char *pszOrg, char *pszApp)
 {
+  return plibc_init_utf8 (pszOrg, pszApp, 0);
+}
+
+/**
+ * @brief Initialize POSIX emulation and set up Windows environment
+ * @param pszOrg Organisation ("GNU" for GNU projects)
+ * @param pszApp Application title
+ * @param utf8_mode 1 to enable automatic UTF-8 conversion, 0 to use system CP
+ * @return Error code from winerror.h, ERROR_SUCCESS on success
+ * @note Example: plibc_init("My Company", "My Application", 1);
+*/
+int plibc_init_utf8(char *pszOrg, char *pszApp, int utf8_mode)
+{
   long lRet;
   WSADATA wsaData;
   enum {ROOT, USER, HOME, DATA} eAction = ROOT;
   UINT uiCP;
-  char szLang[11] = "LANG=", *ini;
-  struct stat inistat;
+  char szLang[11] = "LANG=";
+  wchar_t *ini;
+  struct _stat inistat;
   LCID locale;
-  char *binpath, *binpath_idx;
+  wchar_t *binpath, *binpath_idx;
+
+  _plibc_utf8_mode = utf8_mode;
 
   if (iInit > 0)
   {
@@ -283,34 +311,34 @@ int plibc_init(char *pszOrg, char *pszApp)
   /* Since different modules may initialize to *their* org/app, we need a mechanism to force this
    * information to a global "product name" */
   binpath = malloc (4200);
-  GetModuleFileName (NULL, binpath, 4096);
-  binpath_idx = binpath + strlen (binpath);
-  while ((binpath_idx > binpath) && (*binpath_idx != '\\') && (*binpath_idx != '/'))
+  GetModuleFileNameW (NULL, binpath, 4096);
+  binpath_idx = binpath + wcslen (binpath);
+  while ((binpath_idx > binpath) && (*binpath_idx != L'\\') && (*binpath_idx != L'/'))
     binpath_idx--;
-  *binpath_idx = '\0';
+  *binpath_idx = L'\0';
 
-  strcat(binpath, "\\");
+  wcscat(binpath, L"\\");
   binpath_idx++;
 
-  ini = "plibc.ini";
-  strcat(binpath, ini);
-  if (stat(binpath, &inistat) != 0)
+  ini = L"plibc.ini";
+  wcscat(binpath, ini);
+  if (_wstat(binpath, &inistat) != 0)
   {
-    ini = "..\\share\\plibc.ini";
-    memcpy(binpath_idx, ini, 19);
-    if (stat(binpath, &inistat) != 0)
+    ini = L"..\\share\\plibc.ini";
+    memcpy(binpath_idx, ini, 19 * sizeof (wchar_t));
+    if (_wstat(binpath, &inistat) != 0)
     {
-      ini = "..\\share\\plibc\\plibc.ini";
-      memcpy(binpath_idx, ini, 25);
-      if (stat(binpath, &inistat) != 0)
+      ini = L"..\\share\\plibc\\plibc.ini";
+      memcpy(binpath_idx, ini, 25 * sizeof (wchar_t));
+      if (_wstat(binpath, &inistat) != 0)
       {
-        ini = "..\\etc\\plibc.ini";
-        memcpy(binpath_idx, ini, 17);
-        if (stat(binpath, &inistat) != 0)
+        ini = L"..\\etc\\plibc.ini";
+        memcpy(binpath_idx, ini, 17 * sizeof (wchar_t));
+        if (_wstat(binpath, &inistat) != 0)
         {
-          ini = "..\\etc\\plibc\\plibc.ini";
-          memcpy(binpath_idx, ini, 23);
-          if (stat(binpath, &inistat) != 0)
+          ini = L"..\\etc\\plibc\\plibc.ini";
+          memcpy(binpath_idx, ini, 23 * sizeof (wchar_t));
+          if (_wstat(binpath, &inistat) != 0)
             ini = NULL;
         }
       }
@@ -319,24 +347,54 @@ int plibc_init(char *pszOrg, char *pszApp)
 
   if (ini)
   {
-    GetPrivateProfileString("init", "organisation", NULL, szUser, sizeof(szUser), binpath);
-    _pszOrg = strdup(szUser);
-    GetPrivateProfileString("init", "application", NULL, szUser, sizeof(szUser), binpath);
-    _pszApp = strdup(szUser);
+    GetPrivateProfileStringW(L"init", L"organisation", NULL, szUser, sizeof(szUser), binpath);
+    _pwszOrg = wcsdup(szUser);
+    GetPrivateProfileStringW(L"init", L"application", NULL, szUser, sizeof(szUser), binpath);
+    _pwszApp = wcsdup(szUser);
+
+    if (plibc_utf8_mode() == 1)
+    {
+      if (wchartostr (_pwszOrg, &_pszuOrg, CP_UTF8) < 0)
+        _pszuOrg = NULL;
+      if (wchartostr (_pwszApp, &_pszuApp, CP_UTF8) < 0)
+        _pszuApp = NULL;
+    }
+    else
+    {
+      if (wchartostr (_pwszOrg, &_pszuOrg, CP_ACP) < 0)
+        _pszuOrg = NULL;
+      if (wchartostr (_pwszApp, &_pszuApp, CP_ACP) < 0)
+        _pszuApp = NULL;
+    }
   }
   else
   {
-    _pszOrg = strdup(pszOrg);
-    _pszApp = strdup(pszApp);
+    strtowchar (pszOrg, &_pwszOrg, CP_UTF8);
+    strtowchar (pszApp, &_pwszApp, CP_UTF8);
+    _pszuOrg = strdup(pszOrg);
+    _pszuApp = strdup(pszApp);
   }
 
   /* Init path translation */
   if((lRet = _plibc_DetermineRootDir()) == ERROR_SUCCESS)
   {
     DWORD dwSize = 261;
+    char *t;
+    int r;
 
     eAction = USER;
-    GetUserName(szUser, &dwSize);
+    GetUserNameW(szUser, &dwSize);
+    if (plibc_utf8_mode() == 1)
+      r = wchartostr (szUser, &t, CP_UTF8);
+    else
+      r = wchartostr (szUser, &t, CP_ACP);
+    if (r < 0)
+      szuUser[0] = '\0';
+    else
+    {
+      strncpy (szuUser, t, 261);
+      free (t);
+    }
 
     eAction = HOME;
     lRet = _plibc_DetermineHomeDir();
@@ -413,8 +471,8 @@ int plibc_init(char *pszOrg, char *pszApp)
   SetConsoleOutputCP(uiCP);
   setlocale( LC_ALL, ".OCP" );
 
-	/* Set LANG environment variable */
-	locale = GetThreadLocale();
+  /* Set LANG environment variable */
+  locale = GetThreadLocale();
   GetLocaleInfo(locale, LOCALE_SISO3166CTRYNAME, szLang + 5, 3);
   szLang[7] = '_';
   GetLocaleInfo(locale, LOCALE_SISO639LANGNAME, szLang + 8, 3);
@@ -426,12 +484,13 @@ int plibc_init(char *pszOrg, char *pszApp)
   /* stat64 isn't available under Windows 9x */
   hMsvcrt = LoadLibrary("msvcrt.dll");
   _plibc_stat64 = GetProcAddress(hMsvcrt, "_stat64");
+  _plibc_wstat64 = GetProcAddress(hMsvcrt, "_wstat64");
 
   srand((unsigned int) time(NULL));
 
-	iInit++;
+  iInit++;
 
-	return ERROR_SUCCESS;
+  return ERROR_SUCCESS;
 }
 
 /**
@@ -465,8 +524,10 @@ void plibc_shutdown()
   if (hMsvcrt)
     FreeModule(hMsvcrt);
 
-  free(_pszOrg);
-  free(_pszApp);
+  free(_pwszOrg);
+  free(_pwszApp);
+  free(_pszuOrg);
+  free(_pszuApp);
 
   iInit--;
 }

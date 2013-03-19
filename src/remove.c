@@ -30,17 +30,24 @@
  */
 int _win_remove(const char *path)
 {
-  char szFile[_MAX_PATH + 1];
+  wchar_t szFile[_MAX_PATH + 1];
   long lRet;
 
-  if ((lRet = plibc_conv_to_win_path_ex(path, szFile, 0)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv_ex(path, szFile, 0);
+  else
+    lRet = plibc_conv_to_win_path_ex(path, (char *) szFile, 0);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return -1;
   }
 
   /* remove sets errno */
-  return remove(szFile);
+  if (plibc_utf8_mode() == 1)
+    return _wremove(szFile);
+  else
+    return remove((char *) szFile);
 }
 
 /* end of remove.c */

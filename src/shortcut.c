@@ -35,18 +35,18 @@ DEFINE_OLEGUID(IID_IPersistFile, 0x0000010BL, 0, 0);
 #include <shlobj.h>
 #include <objbase.h>
 
-BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest)
+BOOL
+_plibc_CreateShortcutW(const wchar_t *pwszSrc, const wchar_t *pwszDest)
 {
     /* Create shortcut */
-    IShellLink *pLink;
+    IShellLinkW *pLink;
     IPersistFile *pFile;
-    WCHAR *pwszDest;
-    char *pszFileLnk;
+    wchar_t *pwszFileLnk;
     HRESULT hRes;
-    
+
     CoInitialize(NULL);
     
-    if ((strlen(pszSrc) > _MAX_PATH) || (strlen(pszDest) + 4 > _MAX_PATH))
+    if ((wcslen(pwszSrc) > _MAX_PATH) || (wcslen(pwszDest) + 4 > _MAX_PATH))
     {
       CoUninitialize();
       errno = ENAMETOOLONG;
@@ -65,12 +65,11 @@ BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest)
     }
   
     /* Set target path */
-    pLink->lpVtbl->SetPath(pLink, pszSrc);
+    pLink->lpVtbl->SetPath(pLink, pwszSrc);
   
     /* Get File-Object */
     if (pLink->lpVtbl->QueryInterface(pLink, &IID_IPersistFile, (void **) &pFile) != S_OK)
     {
-      free(pwszDest);
       pLink->lpVtbl->Release(pLink);
       CoUninitialize();
       errno = ESTALE;
@@ -79,56 +78,83 @@ BOOL _plibc_CreateShortcut(const char *pszSrc, const char *pszDest)
     }
 
     /* shortcuts have the extension .lnk */
-    pszFileLnk = (char *) malloc(strlen(pszDest) + 5);
-    sprintf(pszFileLnk, "%s.lnk", pszDest);
+    pwszFileLnk = (wchar_t *) malloc((wcslen(pwszDest) + 5) * sizeof (wchar_t));
+    swprintf(pwszFileLnk, L"%s.lnk", pwszDest);
   
-    /* Turn filename into widechars */
-    pwszDest = (WCHAR *) malloc((_MAX_PATH + 5) * sizeof(WCHAR));
-    MultiByteToWideChar(CP_ACP, 0, pszFileLnk, -1, pwszDest, _MAX_PATH);
-    
-    free(pszFileLnk);
-    
     /* Save shortcut */
-    if (FAILED(hRes = pFile->lpVtbl->Save(pFile, (LPCOLESTR) pwszDest, TRUE)))
+    hRes = pFile->lpVtbl->Save(pFile, (LPCOLESTR) pwszFileLnk, TRUE);
+    free(pwszFileLnk);
+    pLink->lpVtbl->Release(pLink);
+    pFile->lpVtbl->Release(pFile);
+    CoUninitialize();
+    if (FAILED(hRes))
     {
-      free(pwszDest);
-      pLink->lpVtbl->Release(pLink);
-      pFile->lpVtbl->Release(pFile);
-      CoUninitialize();
       SetErrnoFromHRESULT(hRes);
-  
       return FALSE;
     }
-  
-    free(pwszDest);
-    
-    pFile->lpVtbl->Release(pFile);
-    pLink->lpVtbl->Release(pLink);
-    CoUninitialize();
+
     errno = 0;
-      
     return TRUE;
 }
 
-BOOL _plibc_DereferenceShortcut(char *pszShortcut)
+BOOL
+_plibc_CreateShortcut(const char *pszSrc, const char *pszDest)
 {
-  IShellLink *pLink;
+  wchar_t *pwszSrc = NULL, *pwszDest = NULL;
+  int r;
+  BOOL result;
+  int e;
+  if (pszSrc != NULL)
+  {
+    if (plibc_utf8_mode() == 1)
+      r = strtowchar (pszSrc, &pwszSrc, CP_UTF8);
+    else
+      r = strtowchar (pszSrc, &pwszSrc, CP_ACP);
+    if (r < 0)
+      return FALSE;
+  }
+  if (pszDest != NULL)
+  {
+    if (plibc_utf8_mode() == 1)
+      r = strtowchar (pszDest, &pwszDest, CP_UTF8);
+    else
+      r = strtowchar (pszDest, &pwszDest, CP_ACP);
+    if (r < 0)
+    {
+      if (pwszSrc)
+        free (pwszSrc);
+      return FALSE;
+    }
+  }
+  result = _plibc_CreateShortcutW (pwszSrc, pwszDest);
+  e = errno;
+  if (pwszSrc)
+    free (pwszSrc);
+  if (pwszDest)
+    free (pwszDest);
+  errno = e;
+  return result;
+}
+
+BOOL
+_plibc_DereferenceShortcutW(wchar_t *pwszShortcut)
+{
+  IShellLinkW *pLink;
+  wchar_t *pwszLnk;
+  wchar_t szTarget[_MAX_PATH + 1];
   IPersistFile *pFile;
-  WCHAR *pwszShortcut;
-  char *pszLnk;
   int iErr, iLen;
   HRESULT hRes;
   HANDLE hLink;
-  char szTarget[_MAX_PATH + 1];
 
-  if (! *pszShortcut)
+  if (! *pwszShortcut)
     return TRUE;
 
-  if (GetFileAttributes (pszShortcut) & (FILE_ATTRIBUTE_DEVICE | FILE_ATTRIBUTE_DIRECTORY))
-    {
-      errno = EINVAL;
-      return FALSE;
-    }
+  if (GetFileAttributesW (pwszShortcut) & (FILE_ATTRIBUTE_DEVICE | FILE_ATTRIBUTE_DIRECTORY))
+  {
+    errno = EINVAL;
+    return FALSE;
+  }
 
   CoInitialize(NULL);
   szTarget[0] = 0;
@@ -153,27 +179,25 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
     return FALSE;
   }
 
-  pwszShortcut = (WCHAR *) malloc((_MAX_PATH + 1) * sizeof(WCHAR));
-
   /* Shortcuts have the extension .lnk
      If it isn't there, append it */
-  iLen = strlen(pszShortcut);
-  if (iLen > 4 && (strcmp(pszShortcut + iLen - 4, ".lnk") != 0))
+  iLen = wcslen(pwszShortcut);
+  if (iLen > 4 && (wcscmp(pwszShortcut + iLen - 4, L".lnk") != 0))
   {
     HANDLE hLink;
     
-    pszLnk = (char *) malloc(iLen + 5);
-    sprintf(pszLnk, "%s.lnk", pszShortcut);
+    pwszLnk = (wchar_t *) malloc((iLen + 5) * sizeof (wchar_t));
+    swprintf(pwszLnk, L"%s.lnk", pwszShortcut);
   }
   else
-    pszLnk = strdup(pszShortcut);
+    pwszLnk = wcsdup(pwszShortcut);
 
   /* Make sure the path refers to a file */
-  hLink = CreateFile(pszLnk, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+  hLink = CreateFileW(pwszLnk, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
                    NULL, OPEN_EXISTING, 0, NULL);
   if (hLink == INVALID_HANDLE_VALUE)
   {
-    free(pszLnk);
+    free (pwszLnk);
     SetErrnoFromWinError(GetLastError());
     
     if (errno == ENOENT)
@@ -183,21 +207,20 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
          exist or the path isn't a link. */
 
       /* Is it a directory? */
-      if (GetFileAttributes(pszShortcut) & FILE_ATTRIBUTE_DIRECTORY)
+      if (GetFileAttributesW(pwszShortcut) & FILE_ATTRIBUTE_DIRECTORY)
       {
         errno = EINVAL;
         
         pLink->lpVtbl->Release(pLink);
         pFile->lpVtbl->Release(pFile);
-        free(pwszShortcut);
         CoUninitialize();
         
         return FALSE;
       }
 
-      pszLnk = strdup(pszShortcut);
+      pwszLnk = wcsdup(pwszShortcut);
       
-      hLink = CreateFile(pszLnk, GENERIC_READ, FILE_SHARE_READ |
+      hLink = CreateFileW(pwszLnk, GENERIC_READ, FILE_SHARE_READ |
                 FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
       SetErrnoFromWinError(GetLastError());
     }
@@ -205,14 +228,13 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
     {
       pLink->lpVtbl->Release(pLink);
       pFile->lpVtbl->Release(pFile);
-      free(pwszShortcut);
       CoUninitialize();
       
       return FALSE; /* File/link is there but unaccessible */
     }
   }
-    
-  MultiByteToWideChar(CP_ACP, 0, pszLnk, -1, pwszShortcut, _MAX_PATH);
+  free(pwszShortcut);
+  pwszShortcut = pwszLnk;
   
   /* Open shortcut */
   if (FAILED(hRes = pFile->lpVtbl->Load(pFile, (LPCOLESTR) pwszShortcut, STGM_READ)))
@@ -243,15 +265,12 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
     }
     else
       SetErrnoFromHRESULT(hRes);
-
-    free(pszLnk);
           
     CloseHandle(hLink);
     return FALSE;
   }
   
   CloseHandle(hLink);
-  free(pszLnk);
   free(pwszShortcut);
   
   /* Get target file */
@@ -276,7 +295,7 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
   
   if (szTarget[0] != 0)
   {
-  	strcpy(pszShortcut, szTarget);
+  	wcscpy(pwszShortcut, szTarget);
   	return TRUE;
   }
   else
@@ -285,6 +304,32 @@ BOOL _plibc_DereferenceShortcut(char *pszShortcut)
     errno = EINVAL;
     return FALSE;
   }
+}
+
+BOOL _plibc_DereferenceShortcut(char *pszShortcut)
+{
+  WCHAR pwszShortcut[_MAX_PATH + 1];
+  int r;
+  int e;
+  BOOL result;
+  if (plibc_utf8_mode() == 1)
+    r = strtowchar_buf (pszShortcut, pwszShortcut, _MAX_PATH, CP_UTF8);
+  else
+    r = strtowchar_buf (pszShortcut, pwszShortcut, _MAX_PATH, CP_ACP);
+  if (r < 0)
+    return FALSE;
+  result = _plibc_DereferenceShortcutW(pwszShortcut);
+  if (result == FALSE)
+    return FALSE;
+  e = errno;
+  if (plibc_utf8_mode() == 1)
+    r = wchartostr_buf (pwszShortcut, pszShortcut, _MAX_PATH, CP_UTF8);
+  else
+    r = wchartostr_buf (pwszShortcut, pszShortcut, _MAX_PATH, CP_ACP);
+  if (r < 0)
+    return FALSE;
+  errno = e;
+  return TRUE;
 }
 
 /**
@@ -297,6 +342,27 @@ int __win_deref(char *path)
   errno = 0;
 
   while (_plibc_DereferenceShortcut(path))
+  {
+    if (iDepth++ > 10)
+    {
+      errno = ELOOP;
+      return -1;
+    }
+  }
+
+  if (iDepth != 0 && errno == EINVAL)
+    errno = 0;
+
+  return errno ? -1 : 0;
+}
+
+int __win_derefw(wchar_t *path)
+{
+  int iDepth = 0;
+
+  errno = 0;
+
+  while (_plibc_DereferenceShortcutW(path))
   {
     if (iDepth++ > 10)
     {

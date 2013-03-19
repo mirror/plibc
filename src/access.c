@@ -29,19 +29,25 @@
  */
 int _win_access( const char *path, int mode )
 {
-  char szFile[_MAX_PATH + 1];
+  wchar_t szFile[_MAX_PATH + 1];
   long lRet;
 
   mode &= 6;
-
-  if ((lRet = plibc_conv_to_win_path(path, szFile)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv(path, szFile);
+  else
+    lRet = plibc_conv_to_win_path(path, (char *) szFile);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return -1;
   }
 
   /* access sets errno */
-  return access(szFile, mode);
+  if (plibc_utf8_mode() == 1)
+    return _waccess(szFile, mode);
+  else
+    return access((char *) szFile, mode);
 }
 
 /* end of access.c */

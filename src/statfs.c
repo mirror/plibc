@@ -31,28 +31,50 @@
  */
 int statfs(const char *path, struct statfs *buf)
 {
+  BOOL b;
   HINSTANCE h;
   FARPROC f;
-  char tmp[MAX_PATH], resolved_path[MAX_PATH];
+  wchar_t tmp[MAX_PATH], resolved_path[MAX_PATH];
+  char uresolved_path[MAX_PATH];
   int retval = 0;
 
   errno = 0;
+  resolved_path[0] = 0;
 
-  realpath(path, resolved_path);
-  if(!resolved_path)
-    retval = -1;
+  if (plibc_utf8_mode() == 1)
+  {
+    realpath(path, uresolved_path);
+    strtowchar_buf (uresolved_path, resolved_path, MAX_PATH, CP_UTF8);
+    if (!resolved_path[0])
+      retval = -1;
+  }
   else
+  {
+    realpath(path, (char *) resolved_path);
+    if(!((char *) resolved_path)[0])
+      retval = -1;
+  }
+  if (retval != -1)
   {
     /* check whether GetDiskFreeSpaceExA is supported */
     h = LoadLibraryA("kernel32.dll");
     if(h)
-      f = GetProcAddress(h, "GetDiskFreeSpaceExA");
+    {
+      if (plibc_utf8_mode() == 1)
+        f = GetProcAddress(h, "GetDiskFreeSpaceExW");
+      else
+        f = GetProcAddress(h, "GetDiskFreeSpaceExA");
+    }
     else
       f = NULL;
     if(f)
     {
       ULARGE_INTEGER bytes_free, bytes_total, bytes_free2;
-      if(!f(resolved_path, &bytes_free2, &bytes_total, &bytes_free))
+      if (plibc_utf8_mode() == 1)
+        b = f(resolved_path, &bytes_free2, &bytes_total, &bytes_free);
+      else
+        b = f((char *) resolved_path, &bytes_free2, &bytes_total, &bytes_free);
+      if(!b)
       {
         errno = ENOENT;
         retval = -1;
@@ -72,9 +94,15 @@ int statfs(const char *path, struct statfs *buf)
       DWORD sectors_per_cluster, bytes_per_sector;
       if(h)
         FreeLibrary(h);
-      if(!GetDiskFreeSpaceA(resolved_path, &sectors_per_cluster,
+      if (plibc_utf8_mode() == 1)
+        b = GetDiskFreeSpaceW(resolved_path, &sectors_per_cluster,
                             &bytes_per_sector, &buf->f_bavail,
-                            &buf->f_blocks))
+                            &buf->f_blocks);
+      else
+        b = GetDiskFreeSpaceA((char *) resolved_path, &sectors_per_cluster,
+                            &bytes_per_sector, &buf->f_bavail,
+                            &buf->f_blocks);
+      if (!b)
       {
         errno = ENOENT;
         retval = -1;
@@ -92,13 +120,29 @@ int statfs(const char *path, struct statfs *buf)
   }
 
   /* get the FS volume information */
-  if(strspn(":", resolved_path) > 0)
-    resolved_path[3] = '\0';    /* we want only the root */
-  if(GetVolumeInformation
-     (resolved_path, NULL, 0, &buf->f_fsid, &buf->f_namelen, NULL, tmp,
-      MAX_PATH))
+  if (plibc_utf8_mode() == 1)
   {
-    if(strcasecmp("NTFS", tmp) == 0)
+    if(wcsspn(L":", resolved_path) > 0)
+      resolved_path[3] = L'\0';
+  }
+  else
+  {
+    if(strspn(":", (char *) resolved_path) > 0)
+      ((char *) resolved_path)[3] = 0;    /* we want only the root */
+  }
+  if (plibc_utf8_mode() == 1)
+    b = GetVolumeInformationW(resolved_path, NULL, 0, &buf->f_fsid,
+      &buf->f_namelen, NULL, tmp, MAX_PATH);
+  else
+    b = GetVolumeInformation((char *) resolved_path, NULL, 0, &buf->f_fsid,
+      &buf->f_namelen, NULL, (char *) tmp, MAX_PATH);
+  if (b)
+  {
+    if (plibc_utf8_mode() == 1)
+      b = (wcscasecmp(L"NTFS", tmp) == 0);
+    else
+      b = (strcasecmp("NTFS", (char *) tmp) == 0);
+    if (b)
     {
       buf->f_type = NTFS_SUPER_MAGIC;
     }

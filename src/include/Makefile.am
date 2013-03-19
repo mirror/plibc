@@ -1,7 +1,8 @@
 SUBDIRS = .
 
 EXTRA_DIST = \
-  plibc_private.h
+  plibc_private.h \
+  plibc_strconv.h
 
 plibcincludedir = $(includedir)
 

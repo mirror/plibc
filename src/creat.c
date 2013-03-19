@@ -29,21 +29,28 @@
  */
 int _win_creat(const char *path, mode_t mode)
 {
-  char szFile[_MAX_PATH + 1];
+  wchar_t szFile[_MAX_PATH + 1];
   long lRet;
   int iFD;
 
-  if ((lRet = plibc_conv_to_win_path(path, szFile)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv(path, szFile);
+  else
+    lRet = plibc_conv_to_win_path(path, (char *) szFile);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return -1;
   }
 
   /* _creat sets errno */
-  iFD = _creat(szFile, mode);
+  if (plibc_utf8_mode() == 1)
+    iFD = _wcreat(szFile, mode);
+  else
+    iFD = _creat((char *) szFile, mode);
   if (iFD != -1)
     __win_SetHandleType((DWORD) iFD, FD_HANDLE);
-  
+
   return iFD;
 }
 

@@ -29,17 +29,37 @@
  */
 DIR *_win_opendir(const char *dirname)
 {
-  char szDir[_MAX_PATH + 1];
+  _WDIR *mingw_wdir = NULL;
+  struct plibc_WDIR *pwd;
+  wchar_t szDir[_MAX_PATH + 1];
   long lRet;
-
-  if ((lRet = plibc_conv_to_win_path(dirname, szDir)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv(dirname, szDir);
+  else
+    lRet = plibc_conv_to_win_path(dirname, (char *) szDir);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return NULL;
   }
 
   /* opendir sets errno */
-  return opendir(szDir);
+  if (plibc_utf8_mode() == 1)
+  {
+    mingw_wdir = _wopendir(szDir);
+    if (mingw_wdir == NULL)
+      return mingw_wdir;
+    /* Now, we need to store some extra info, so return
+     * a wrapped pointer of our own.
+     */
+    pwd = malloc (sizeof (struct plibc_WDIR));
+    pwd->mingw_wdir = mingw_wdir;
+    pwd->self = pwd;
+    memset (&pwd->udirent, 0, sizeof (struct dirent));
+    return (DIR *) pwd;
+  }
+  else
+    return opendir((char *) szDir);
 }
 
 

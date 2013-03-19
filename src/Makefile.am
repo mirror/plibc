@@ -17,9 +17,11 @@ libplibc_la_SOURCES = \
  choosedir.c \
  choosefile.c \
  close.c \
+ closedir.c \
  ctime.c \
  creat.c \
  errno.c \
+ fclose.c \
  flock.c \
  fopen.c \
  fread.c \
@@ -45,9 +47,12 @@ libplibc_la_SOURCES = \
  pid.c \
  pipe.c \
  plibc.c \
+ plibc_strconv.c \
+ plibc_strconv.h \
  printf.c \
  random.c \
  read.c \
+ readdir.c \
  readlink.c \
  realpath.c \
  registry.c \

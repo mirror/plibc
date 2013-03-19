@@ -24,15 +24,25 @@
 
 #include "plibc_private.h"
 
-extern char szRootDir[_MAX_PATH + 1];
+extern char szuRootDir[_MAX_PATH + 1];
+extern long luRootDirLen;
+extern char szuHomeDir[_MAX_PATH + 2];
+extern long luHomeDirLen;
+extern char szuDataDir[_MAX_PATH + 1];
+extern long luDataDirLen;
+extern char szuUser[261];
+extern char *_pszuOrg;
+extern char *_pszuApp;
+
+extern wchar_t szRootDir[_MAX_PATH + 1];
 extern long lRootDirLen;
-extern char szHomeDir[_MAX_PATH + 2];
+extern wchar_t szHomeDir[_MAX_PATH + 2];
 extern long lHomeDirLen;
-extern char szDataDir[_MAX_PATH + 1];
+extern wchar_t szDataDir[_MAX_PATH + 1];
 extern long lDataDirLen;
-extern char szUser[261];
-extern char *_pszOrg;
-extern char *_pszApp;
+extern wchar_t szUser[261];
+extern wchar_t *_pwszOrg;
+extern wchar_t *_pwszApp;
 
 
 /**
@@ -42,61 +52,66 @@ extern char *_pszApp;
  */
 long _plibc_DetermineRootDir()
 {
-  char szModule[_MAX_PATH], szDrv[_MAX_DRIVE], szDir[_MAX_DIR];
-  char *pszBin;
+  wchar_t wszModule[_MAX_PATH], wszDrv[_MAX_DRIVE], wszDir[_MAX_DIR];
+  wchar_t *pwszBin;
   long lDirLen;
 
   /* Get the path of the calling module.
      It should be located in one of the "bin" directories */
-  GetModuleFileName(NULL, szModule, MAX_PATH);
-  _splitpath(szModule, szDrv, szDir, NULL, NULL);
+  GetModuleFileNameW(NULL, wszModule, MAX_PATH);
+  _wsplitpath(wszModule, wszDrv, wszDir, NULL, NULL);
 
-	lDirLen = strlen(szDir);
-	pszBin = szDir + lDirLen - 5;
-	if (lDirLen < 5 || strnicmp(pszBin, "\\bin\\", 5) != 0)
+  lDirLen = wcslen(wszDir);
+  pwszBin = wszDir + lDirLen - 5;
+  if (lDirLen < 5 || wcsnicmp(pwszBin, L"\\bin\\", 5) != 0)
   {
-  	char szRegPath[251];
-  	
+    wchar_t wszRegPath[251];
+
     /* Get the installation path from the registry */
     lDirLen = _MAX_PATH - 1;
-    _win_snprintf(szRegPath, 250, "Software\\%s\\%s", _pszOrg, _pszApp);
-    szRegPath[250] = 0;
+    _win_snwprintf(wszRegPath, 250, L"Software\\%s\\%s", _pwszOrg, _pwszApp);
+    wszRegPath[250] = 0;
 
-    if(QueryRegistry
-       (HKEY_CURRENT_USER, szRegPath, "InstallDir",
+    if(QueryRegistryW
+       (HKEY_CURRENT_USER, wszRegPath, L"InstallDir",
         szRootDir, &lDirLen) != ERROR_SUCCESS)
     {
       lDirLen = _MAX_PATH - 1;
 
-      if(QueryRegistry
-         (HKEY_LOCAL_MACHINE, szRegPath, "InstallDir",
+      if(QueryRegistryW
+         (HKEY_LOCAL_MACHINE, wszRegPath, L"InstallDir",
           szRootDir, &lDirLen) != ERROR_SUCCESS)
       {
-        if (GetCurrentDirectory(sizeof(szRootDir), szRootDir) == 0)
+        if (GetCurrentDirectoryW(sizeof(szRootDir), szRootDir) == 0)
           return ERROR_BAD_ENVIRONMENT;
-        lDirLen = strlen(szRootDir);
+        lDirLen = wcslen(szRootDir);
       }
     }
-    strcat(szRootDir, "\\");
+    wcscat(szRootDir, L"\\");
     lRootDirLen = lDirLen + 1;
-    szDrv[0] = 0;
+    wszDrv[0] = 0;
   }
   else
   {
-  	pszBin[1] = 0;
+  	pwszBin[1] = 0;
   	lDirLen -= 4;
   }
 
-  if(szDrv[0])
+  if(wszDrv[0])
   {
-    strcpy(szRootDir, szDrv);
+    wcscpy(szRootDir, wszDrv);
     lRootDirLen = 3 + lDirLen - 1;      /* 3 = strlen(szDir) */
     if(lRootDirLen > _MAX_PATH)
       return ERROR_BUFFER_OVERFLOW;
 
-    strcat(szRootDir, szDir);
+    wcscat(szRootDir, wszDir);
   }
 
+  if (plibc_utf8_mode() == 1)
+    wchartostr_buf (szRootDir, szuRootDir, _MAX_PATH + 1, CP_UTF8);
+  else
+    wchartostr_buf (szRootDir, szuRootDir, _MAX_PATH + 1, CP_ACP);
+  luRootDirLen = strlen (szuRootDir);
   return ERROR_SUCCESS;
 }
 
@@ -107,17 +122,17 @@ long _plibc_DetermineRootDir()
 */
 long _plibc_DetermineHomeDir()
 {
-  char *lpszProfile = getenv("USERPROFILE");
-  if(lpszProfile != NULL && lpszProfile[0] != 0)        /* Windows NT */
+  wchar_t *lpwszProfile = _wgetenv(L"USERPROFILE");
+  if(lpwszProfile != NULL && lpwszProfile[0] != 0)        /* Windows NT */
   {
-    lHomeDirLen = strlen(lpszProfile);
+    lHomeDirLen = wcslen(lpwszProfile);
     if(lHomeDirLen + 1 > _MAX_PATH)
       return ERROR_BUFFER_OVERFLOW;
 
-    strcpy(szHomeDir, lpszProfile);
-    if(szHomeDir[lHomeDirLen - 1] != '\\')
+    wcscpy(szHomeDir, lpwszProfile);
+    if(szHomeDir[lHomeDirLen - 1] != L'\\')
     {
-      szHomeDir[lHomeDirLen] = '\\';
+      szHomeDir[lHomeDirLen] = L'\\';
       szHomeDir[++lHomeDirLen] = 0;
     }
   }
@@ -127,10 +142,10 @@ long _plibc_DetermineHomeDir()
     long lRet;
 
     lHomeDirLen = _MAX_PATH;
-    lRet = QueryRegistry(HKEY_CURRENT_USER,
-                         "Software\\Microsoft\\Windows\\CurrentVersion\\"
-                         "Explorer\\Shell Folders",
-                         "Personal", szHomeDir, &lHomeDirLen);
+    lRet = QueryRegistryW(HKEY_CURRENT_USER,
+                         L"Software\\Microsoft\\Windows\\CurrentVersion\\"
+                         L"Explorer\\Shell Folders",
+                         L"Personal", szHomeDir, &lHomeDirLen);
 
     if(lRet == ERROR_BUFFER_OVERFLOW)
       return ERROR_BUFFER_OVERFLOW;
@@ -138,7 +153,7 @@ long _plibc_DetermineHomeDir()
     {
       /* lHomeDirLen includes \0 */
       if (lHomeDirLen <= _MAX_PATH)
-        strcat(szHomeDir, "\\");
+        wcscat(szHomeDir, L"\\");
       else
         return ERROR_BUFFER_OVERFLOW;
     }
@@ -146,18 +161,23 @@ long _plibc_DetermineHomeDir()
     {
       /* C:\Program Files\GNUnet\home\... */
       /* 5 = strlen("home\\") */
-      lHomeDirLen = strlen(szRootDir) + strlen(szUser) + 5 + 1;
+      lHomeDirLen = wcslen(szRootDir) + wcslen(szUser) + 5 + 1;
 
       if(_MAX_PATH < lHomeDirLen)
         return ERROR_BUFFER_OVERFLOW;
 
-      strcpy(szHomeDir, szRootDir);
-      strcat(szHomeDir, "home\\");
-      strcat(szHomeDir, szUser);
-      strcat(szHomeDir, "\\");
+      wcscpy(szHomeDir, szRootDir);
+      wcscat(szHomeDir, L"home\\");
+      wcscat(szHomeDir, szUser);
+      wcscat(szHomeDir, L"\\");
     }
   }
 
+  if (plibc_utf8_mode() == 1)
+    wchartostr_buf (szHomeDir, szuHomeDir, _MAX_PATH + 1, CP_UTF8);
+  else
+    wchartostr_buf (szHomeDir, szuHomeDir, _MAX_PATH + 1, CP_ACP);
+  luHomeDirLen = strlen (szuHomeDir);
   return ERROR_SUCCESS;
 }
 
@@ -166,27 +186,32 @@ long _plibc_DetermineProgramDataDir()
   long lRet;
   
   lDataDirLen = _MAX_PATH;
-  lRet = QueryRegistry(HKEY_LOCAL_MACHINE,
-                       "Software\\Microsoft\\Windows\\CurrentVersion\\"
-                       "Explorer\\Shell Folders",
-                       "Common AppData", szDataDir, &lDataDirLen);
+  lRet = QueryRegistryW(HKEY_LOCAL_MACHINE,
+                       L"Software\\Microsoft\\Windows\\CurrentVersion\\"
+                       L"Explorer\\Shell Folders",
+                       L"Common AppData", szDataDir, &lDataDirLen);
 
-  lDataDirLen += strlen(_pszApp) + 1 + strlen(_pszOrg) + 1; 
+  lDataDirLen += wcslen(_pwszApp) + 1 + wcslen(_pwszOrg) + 1; 
   if (lRet == ERROR_BUFFER_OVERFLOW || lDataDirLen > _MAX_PATH)
   {
     return ERROR_BUFFER_OVERFLOW;
   }
   else if (lRet == ERROR_SUCCESS)
   {
-    strcat(szDataDir, "\\");
-    strcat(szDataDir, _pszOrg);
-    strcat(szDataDir, "\\");
-    strcat(szDataDir, _pszApp);
-    strcat(szDataDir, "\\");
+    wcscat(szDataDir, L"\\");
+    wcscat(szDataDir, _pwszOrg);
+    wcscat(szDataDir, L"\\");
+    wcscat(szDataDir, _pwszApp);
+    wcscat(szDataDir, L"\\");
   }
   else
-    strcpy(szDataDir, szRootDir);
+    wcscpy(szDataDir, szRootDir);
   
+  if (plibc_utf8_mode() == 1)
+    wchartostr_buf (szDataDir, szuDataDir, _MAX_PATH + 1, CP_UTF8);
+  else
+    wchartostr_buf (szDataDir, szuDataDir, _MAX_PATH + 1, CP_ACP);
+  luDataDirLen = strlen (szuDataDir);
   return ERROR_SUCCESS;
 }
 
@@ -198,7 +223,36 @@ long _plibc_DetermineProgramDataDir()
 */
 int plibc_conv_to_win_path(const char *pszUnix, char *pszWindows)
 {
-	return plibc_conv_to_win_path_ex(pszUnix, pszWindows, 1);
+  return plibc_conv_to_win_path_ex(pszUnix, pszWindows, 1);
+}
+
+int plibc_conv_to_win_pathw(const wchar_t *pszUnix, wchar_t *pszWindows)
+{
+  return plibc_conv_to_win_pathw_ex(pszUnix, pszWindows, 1);
+}
+
+int plibc_conv_to_win_pathwconv(const char *pszUnix, wchar_t *pszWindows)
+{
+  wchar_t *pwszUnix;
+  int r;
+  r = strtowchar (pszUnix, &pwszUnix, CP_UTF8);
+  if (r < 0)
+    return r;
+  r = plibc_conv_to_win_pathw_ex(pwszUnix, pszWindows, 1);
+  free (pwszUnix);
+  return r;
+}
+
+int plibc_conv_to_win_pathwconv_ex(const char *pszUnix, wchar_t *pszWindows, int derefLinks)
+{
+  wchar_t *pwszUnix;
+  int r;
+  r = strtowchar (pszUnix, &pwszUnix, CP_UTF8);
+  if (r < 0)
+    return r;
+  r = plibc_conv_to_win_pathw_ex(pwszUnix, pszWindows, derefLinks);
+  free (pwszUnix);
+  return r;
 }
 
 /**
@@ -208,6 +262,176 @@ int plibc_conv_to_win_path(const char *pszUnix, char *pszWindows)
  * @param derefLinks 1 to dereference links
  * @return Error code from winerror.h, ERROR_SUCCESS on success
 */
+int plibc_conv_to_win_pathw_ex(const wchar_t *pszUnix, wchar_t *pszWindows, int derefLinks)
+{
+  wchar_t *pSrc, *pDest;
+  long iSpaceUsed;
+  int iUnixLen;
+
+  if (!pszUnix || !pszWindows)
+    return ERROR_INVALID_PARAMETER;
+
+  iUnixLen = wcslen(pszUnix);
+
+  /* Check if we already have a windows path */
+  if((wcschr(pszUnix, L'\\') != NULL) || (wcschr(pszUnix, L':') != NULL))
+  {
+    if(iUnixLen > MAX_PATH)
+      return ERROR_BUFFER_OVERFLOW;
+    wcscpy(pszWindows, pszUnix);
+  }
+
+  /* Temp. dir? */
+  if(wcsncmp(pszUnix, L"/tmp", 4) == 0)
+  {
+    iSpaceUsed = GetTempPathW(_MAX_PATH, pszWindows);
+    if (iSpaceUsed > _MAX_PATH)
+      return ERROR_BUFFER_OVERFLOW;
+    pDest = pszWindows + iSpaceUsed;
+    pSrc = (wchar_t *) pszUnix + 4;
+  }
+  /* Bit bucket? */
+  else if (wcsncmp(pszUnix, L"/dev/null", 9) == 0)
+  {
+    wcscpy(pszWindows, L"nul");
+    iSpaceUsed = 3;
+    pDest = pszWindows + lHomeDirLen;
+    pSrc = (wchar_t *) pszUnix + 9;
+  }
+  /* Data directories */
+  else if (wcsncmp(pszUnix, L"/etc", 4) == 0 ||
+    wcsncmp(pszUnix, L"/com", 4) == 0 ||
+    wcsncmp(pszUnix, L"/var", 4) == 0)
+  {
+    wcscpy(pszWindows, szDataDir);
+    iSpaceUsed = lDataDirLen;
+    pDest = pszWindows + lDataDirLen;
+    pSrc = (wchar_t *) pszUnix + 1;
+  }
+  /* Is the unix path a full path? */
+  else if(pszUnix[0] == L'/')
+  {
+    wcscpy(pszWindows, szRootDir);
+    iSpaceUsed = lRootDirLen;
+    pDest = pszWindows + lRootDirLen;
+    pSrc = (wchar_t *) pszUnix + 1;
+  }
+  /* Home dir? */
+  else if (pszUnix[0] == L'~')
+  {
+    wcscpy(pszWindows, szHomeDir);
+    iSpaceUsed = lHomeDirLen;
+    pDest = pszWindows + lHomeDirLen;
+    pSrc = (wchar_t *) pszUnix + 1;
+  }
+  /* Home dir (env var)? */
+  else if (wcsncmp(pszUnix, L"$HOME", 5) == 0)
+  {
+    wcscpy(pszWindows, szHomeDir);
+    iSpaceUsed = lHomeDirLen;
+    pDest = pszWindows + lHomeDirLen;
+    pSrc = (wchar_t *) pszUnix + 5;  	
+  }
+  else
+  {
+    pDest = pszWindows;
+    iSpaceUsed = 0;
+    pSrc = (wchar_t *) pszUnix;
+  }
+
+  iSpaceUsed += wcslen(pSrc);
+  if(iSpaceUsed + 1 > _MAX_PATH)
+    return ERROR_BUFFER_OVERFLOW;
+
+  /* substitute all slashes */
+  while(*pSrc)
+  {
+    if(*pSrc == L'/')
+      *pDest = L'\\';
+    else
+      *pDest = *pSrc;
+
+    pDest++;
+    pSrc++;
+  }
+  *pDest = 0;
+
+  if (derefLinks)
+    __win_derefw(pszWindows);
+  else
+  {
+    /* The filename possibly refers to a symlink, but the .lnk extension may be
+       missing.
+        1. Check if the requested file seems to be a normal file
+        2. Check if the file exists
+         2.1. Yes: Finished
+         2.2. No: Check if "filename.lnk" exists
+          2.2.1 Yes: Append ".lnk" */
+    if (wcsnicmp(pDest - 4, L".lnk", 4) != 0)
+    {
+      HANDLE h = CreateFileW(pszWindows, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
+        NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+      if (h == INVALID_HANDLE_VALUE)
+      {
+        /* File doesn't exist, try shortcut */
+        wchar_t *pLnk;
+        int mal;
+        
+        if (iSpaceUsed + 5 > _MAX_PATH)
+        {
+          pLnk = malloc((iSpaceUsed + 5) * sizeof (wchar_t));
+          wcscpy(pLnk, pszWindows);
+          mal = 1;
+        }
+        else
+        {
+          pLnk = pszWindows;
+          mal = 0;
+        }
+        wcscat(pLnk, L".lnk");
+        
+        h = CreateFileW(pLnk, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
+          NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+          
+        if (h != INVALID_HANDLE_VALUE)
+        {
+          /* Shortcut exists */
+          CloseHandle(h);
+          if (mal)
+            /* Need to copy */
+            if (iSpaceUsed + 5 <= _MAX_PATH)
+              wcscpy(pszWindows, pLnk);
+            else
+            {
+              free(pLnk);
+              return ERROR_BUFFER_OVERFLOW;
+            }
+        }
+        else
+          pLnk[iSpaceUsed] = 0;   
+        
+        if (mal)
+          free(pLnk);
+      }
+      else
+        CloseHandle(h);
+    }
+  }
+
+#if DEBUG_WINPROC
+	{
+		char szInfo[1001];
+
+  	_win_snprintf(szInfo, 1000, "Posix path %S resolved to %S\n", pszUnix,
+  		pszWindows);
+  	szInfo[1000] = 0;
+  	__plibc_panic(INT_MAX, szInfo);
+	}
+#endif
+
+  return ERROR_SUCCESS;
+}
+
 int plibc_conv_to_win_path_ex(const char *pszUnix, char *pszWindows, int derefLinks)
 {
   char *pSrc, *pDest;
@@ -241,7 +465,7 @@ int plibc_conv_to_win_path_ex(const char *pszUnix, char *pszWindows, int derefLi
   {
     strcpy(pszWindows, "nul");
     iSpaceUsed = 3;
-    pDest = pszWindows + lHomeDirLen;
+    pDest = pszWindows + luHomeDirLen;
     pSrc = (char *) pszUnix + 9;
   }
   /* Data directories */
@@ -249,33 +473,33 @@ int plibc_conv_to_win_path_ex(const char *pszUnix, char *pszWindows, int derefLi
     strncmp(pszUnix, "/com", 4) == 0 ||
     strncmp(pszUnix, "/var", 4) == 0)
   {
-    strcpy(pszWindows, szDataDir);
-    iSpaceUsed = lDataDirLen;
-    pDest = pszWindows + lDataDirLen;
+    strcpy(pszWindows, szuDataDir);
+    iSpaceUsed = luDataDirLen;
+    pDest = pszWindows + luDataDirLen;
     pSrc = (char *) pszUnix + 1;
   }
   /* Is the unix path a full path? */
   else if(pszUnix[0] == '/')
   {
-    strcpy(pszWindows, szRootDir);
-    iSpaceUsed = lRootDirLen;
-    pDest = pszWindows + lRootDirLen;
+    strcpy(pszWindows, szuRootDir);
+    iSpaceUsed = luRootDirLen;
+    pDest = pszWindows + luRootDirLen;
     pSrc = (char *) pszUnix + 1;
   }
   /* Home dir? */
   else if (pszUnix[0] == '~')
   {
-    strcpy(pszWindows, szHomeDir);
-    iSpaceUsed = lHomeDirLen;
-    pDest = pszWindows + lHomeDirLen;
+    strcpy(pszWindows, szuHomeDir);
+    iSpaceUsed = luHomeDirLen;
+    pDest = pszWindows + luHomeDirLen;
     pSrc = (char *) pszUnix + 1;
   }
   /* Home dir (env var)? */
   else if (strncmp(pszUnix, "$HOME", 5) == 0)
   {
-    strcpy(pszWindows, szHomeDir);
-    iSpaceUsed = lHomeDirLen;
-    pDest = pszWindows + lHomeDirLen;
+    strcpy(pszWindows, szuHomeDir);
+    iSpaceUsed = luHomeDirLen;
+    pDest = pszWindows + luHomeDirLen;
     pSrc = (char *) pszUnix + 5;  	
   }
   else

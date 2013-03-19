@@ -64,4 +64,35 @@ long QueryRegistry(HKEY hMainKey, const char *pszKey, const char *pszSubKey,
   return lRet;
 }
 
+long QueryRegistryW(HKEY hMainKey, const wchar_t *pszKey, const wchar_t *pszSubKey,
+              wchar_t *pszBuffer, long *pdLength)
+{
+  HKEY hKey;
+  long lRet;
+  long lBufferSize;
+
+  lBufferSize = *pdLength;
+  if((lRet = RegOpenKeyExW(hMainKey, pszKey, 0, KEY_EXECUTE, &hKey)) ==
+     ERROR_SUCCESS)
+  {
+    lRet = RegQueryValueExW(hKey, pszSubKey, 0, NULL, (unsigned char *) pszBuffer, pdLength);
+    if (lRet == ERROR_SUCCESS)
+    {
+      if (pszBuffer[*pdLength - 1] != 0)
+      {
+        if (*pdLength < lBufferSize)
+          pszBuffer[*pdLength] = 0;
+        else
+          lRet = ERROR_MORE_DATA;
+      }
+      else
+        *pdLength = wcslen(pszBuffer);
+    }
+
+    RegCloseKey(hKey);
+  }
+
+  return lRet;
+}
+
 /* end of registry.c */

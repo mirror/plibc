@@ -55,17 +55,37 @@ int _win_mkfifo(const char *path, mode_t mode)
 {
   HANDLE ret;
   SECURITY_ATTRIBUTES sec;
+  wchar_t *wpath = NULL;
+  if (plibc_utf8_mode() == 1)
+  {
+    if (strtowchar (path, &wpath, CP_UTF8) < 0)
+    {
+      SetErrnoFromWinError(GetLastError());
+      return -1;
+    }
+  }
 
   ZeroMemory(&sec, sizeof(sec));
   sec.nLength = sizeof(sec);
   sec.bInheritHandle = TRUE;
 
-  ret = CreateNamedPipe(path, PIPE_ACCESS_DUPLEX |
-      FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE, 1, 0, 0, 0, &sec);
+  if (plibc_utf8_mode() == 1)
+  {
+    int e;
+    ret = CreateNamedPipeW(wpath, PIPE_ACCESS_DUPLEX |
+        FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE, 1, 0, 0, 0, &sec);
+    e = errno;
+    free (wpath);
+    errno = e;
+  }
+  else
+  {
+    ret = CreateNamedPipe(path, PIPE_ACCESS_DUPLEX |
+        FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE, 1, 0, 0, 0, &sec);
+  }
   if (ret == INVALID_HANDLE_VALUE)
   {
     SetErrnoFromWinError(GetLastError());
-
     return -1;
   }
   else

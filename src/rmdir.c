@@ -29,17 +29,24 @@
  */
 int _win_rmdir(const char *path)
 {
-  char szDir[_MAX_PATH + 1];
+  wchar_t szDir[_MAX_PATH + 1];
   long lRet;
 
-  if ((lRet = plibc_conv_to_win_path(path, szDir)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv(path, szDir);
+  else
+    lRet = plibc_conv_to_win_path(path, (char *) szDir);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return -1;
   }
 
   /* rmdir sets errno */
-  return rmdir(szDir);
+  if (plibc_utf8_mode() == 1)
+    return _wrmdir(szDir);
+  else
+    return rmdir((char *) szDir);
 }
 
 /* end of rmdir.c */

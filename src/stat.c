@@ -29,31 +29,53 @@
  */
 int __win_stat(const char *path, struct stat *buffer, int iDeref)
 {
-  char szFile[_MAX_PATH + 1];
+  wchar_t szFile[_MAX_PATH + 1];
   long lRet;
 
-  if ((lRet = plibc_conv_to_win_path(path, szFile)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv(path, szFile);
+  else
+    lRet = plibc_conv_to_win_path(path, (char *) szFile);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return -1;
   }
 
   /* Remove trailing slash */
-  lRet = strlen(szFile) - 1;
-  if (szFile[lRet] == '\\')
+  if (plibc_utf8_mode() == 1)
   {
-    szFile[lRet] = 0;
+    lRet = wcslen(szFile) - 1;
+    if (szFile[lRet] == L'\\')
+      szFile[lRet] = L'\0';
+  }
+  else
+  {
+    lRet = strlen(((char *) szFile)) - 1;
+    if (((char *) szFile)[lRet] == '\\')
+      ((char *) szFile)[lRet] = 0;
   }
 
   /* Dereference symlinks */
   if (iDeref)
   {
-    if (__win_deref(szFile) == -1 && errno != EINVAL)
-      return -1;
+    if (plibc_utf8_mode() == 1)
+    {
+      if (__win_derefw(szFile) == -1 && errno != EINVAL)
+        return -1;
+    }
+    else
+    {
+      if (__win_deref((char *) szFile) == -1 && errno != EINVAL)
+        return -1;
+    }
   }
 
   /* stat sets errno */
-  return stat(szFile, buffer);
+  if (plibc_utf8_mode() == 1)
+    return _wstat(szFile, buffer);
+  else
+    return stat((char *) szFile, buffer);
 }
 
 /**
@@ -77,27 +99,46 @@ int _win_lstat(const char *path, struct stat *buf)
  */
 int __win_stat64(const char *path, struct stat64 *buffer, int iDeref)
 {
-  char szFile[_MAX_PATH + 1];
+  wchar_t szFile[_MAX_PATH + 1];
   long lRet;
 
-  if ((lRet = plibc_conv_to_win_path(path, szFile)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv(path, szFile);
+  else
+    lRet = plibc_conv_to_win_path(path, (char *) szFile);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return -1;
   }
 
   /* Remove trailing slash */
-  lRet = strlen(szFile) - 1;
-  if (szFile[lRet] == '\\')
+  if (plibc_utf8_mode() == 1)
   {
-    szFile[lRet] = 0;
+    lRet = wcslen(szFile) - 1;
+    if (szFile[lRet] == L'\\')
+      szFile[lRet] = L'\0';
+  }
+  else
+  {
+    lRet = strlen((char *) szFile) - 1;
+    if (((char *) szFile)[lRet] == '\\')
+      ((char *) szFile)[lRet] = 0;
   }
 
   /* Dereference symlinks */
   if (iDeref)
   {
-    if (__win_deref(szFile) == -1 && errno != EINVAL)
-      return -1;
+    if (plibc_utf8_mode() == 1)
+    {
+      if (__win_derefw(szFile) == -1 && errno != EINVAL)
+        return -1;
+    }
+    else
+    {
+      if (__win_deref((char *) szFile) == -1 && errno != EINVAL)
+        return -1;
+    }
   }
 
   if (!_plibc_stat64)
@@ -123,8 +164,13 @@ int __win_stat64(const char *path, struct stat64 *buffer, int iDeref)
     return iRet;
   }
   else
+  {
     /* stat sets errno */
-    return _plibc_stat64(szFile, buffer);
+    if (plibc_utf8_mode() == 1)
+      return _plibc_wstat64(szFile, buffer);
+    else
+      return _plibc_stat64((char *) szFile, buffer);
+  }
 }
 
 /**

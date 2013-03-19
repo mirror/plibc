@@ -29,19 +29,26 @@
  */
 int _win_chmod(const char *filename, int pmode)
 {
-  char szFile[_MAX_PATH + 1];
+  wchar_t szFile[_MAX_PATH + 1];
   long lRet;
 
   pmode &= (_S_IREAD | _S_IWRITE);
 
-  if ((lRet = plibc_conv_to_win_path(filename, szFile)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv(filename, szFile);
+  else
+    lRet = plibc_conv_to_win_path(filename, (char *) szFile);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return -1;
   }
 
   /* chmod sets errno */
-  return chmod(szFile, pmode);
+  if (plibc_utf8_mode() == 1)
+    return _wchmod(szFile, pmode);
+  else
+    return chmod((char *) szFile, pmode);
 }
 
 /* end of chmod.c */

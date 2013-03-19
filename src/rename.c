@@ -30,24 +30,35 @@
  */
 int _win_rename(const char *oldname, const char *newname)
 {
-  char szOldName[_MAX_PATH + 1];
-  char szNewName[_MAX_PATH + 1];
+  wchar_t szOldName[_MAX_PATH + 1];
+  wchar_t szNewName[_MAX_PATH + 1];
   long lRet;
 
-  if ((lRet = plibc_conv_to_win_path_ex(oldname, szOldName, 0)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv_ex(oldname, szOldName, 0);
+  else
+    lRet = plibc_conv_to_win_path_ex(oldname, (char *) szOldName, 0);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return -1;
   }
 
-  if ((lRet = plibc_conv_to_win_path_ex(newname, szNewName, 0)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv_ex(newname, szNewName, 0);
+  else
+    lRet = plibc_conv_to_win_path_ex(newname, (char *) szNewName, 0);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return -1;
   }
 
   /* rename sets errno */
-  return rename(szOldName, szNewName);
+  if (plibc_utf8_mode() == 1)
+    return _wrename(szOldName, szNewName);
+  else
+    return rename((char *) szOldName, (char *) szNewName);
 }
 
 /* end of rename.c */

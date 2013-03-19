@@ -36,7 +36,11 @@ char *_win_bindtextdomain(const char *domainname, const char *dirname)
 
     return NULL;
   }
-
+  /* There is nothing we could do: libintl will internally call CRT with
+   * szDirname, so we can't convert it to UTF-8, and can't convince
+   * libintl to use wide-character functions either.
+   * So only call BINDTEXTDOMAIN() with ASCII/CP*-encoded dirnames.
+   */
   return bindtextdomain(domainname, szDirname);
 #else
   errno = ENOSYS;

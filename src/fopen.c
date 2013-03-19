@@ -24,26 +24,66 @@
 
 #include "plibc_private.h"
 
-/**
- * Open a file
- */
-FILE *_win_fopen(const char *filename, const char *mode)
+FILE *_win_wfopen(const wchar_t *filename, const wchar_t *wmode)
 {
-  char szFile[_MAX_PATH + 1];
+  wchar_t szFile[_MAX_PATH + 1];
+
   FILE *hFile;
   int i;
 
-  if ((i = plibc_conv_to_win_path(filename, szFile)) != ERROR_SUCCESS)
+  if ((i = plibc_conv_to_win_pathw(filename, szFile)) != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(i);
-
     return NULL;
   }
 
-  hFile = fopen(szFile, mode);
+  hFile = _wfopen(szFile, wmode);
   SetErrnoFromWinError(GetLastError());
 
   return hFile;
+}
+
+/**
+ * Open a file
+ */
+FILE *
+_win_fopen (const char *filename, const char *mode)
+{
+  wchar_t *wfilename = NULL;
+  wchar_t *wmode = NULL;
+  int r;
+  int e;
+  FILE *result;
+  if (mode != NULL)
+  {
+    if (plibc_utf8_mode() == 1)
+      r = strtowchar (mode, &wmode, CP_UTF8);
+    else
+      r = strtowchar (mode, &wmode, CP_ACP);
+    if (r < 0)
+      return NULL;
+  }
+  if (filename != NULL)
+  {
+    if (plibc_utf8_mode() == 1)
+      r = strtowchar (filename, &wfilename, CP_UTF8);
+    else
+      r = strtowchar (filename, &wfilename, CP_ACP);
+    if (r < 0)
+    {
+      if (wmode)
+        free (wmode);
+      return NULL;
+    }
+  }
+  result = _win_wfopen (wfilename, wmode);
+  e = errno;
+  if (wmode)
+    free (wmode);
+  if (wfilename)
+    free (wfilename);
+  errno = e;
+  return result;
 }
 
 /* end of fopen.c */

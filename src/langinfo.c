@@ -24,7 +24,19 @@
 
 #include "plibc_private.h"
 
+wchar_t __wlanginfo[251];
 char __langinfo[251];
+
+#define gli(li) \
+    if (plibc_utf8_mode() == 1) \
+    { \
+      __langinfo[0] = '\0'; \
+      if (GetLocaleInfoW(loc, li, __wlanginfo, 251) > 0) \
+        wchartostr_buf (__wlanginfo, __langinfo, 251, CP_UTF8); \
+    } \
+    else \
+      GetLocaleInfo(loc, li, __langinfo, 251)
+
 
 /**
  * @brief language information
@@ -39,12 +51,19 @@ char *nl_langinfo(int item)
   {
     case CODESET:
       {
-        unsigned int cp = GetACP();
-
-        if (cp)
-          sprintf(__langinfo, "CP%u", cp);
-        else
+        if (plibc_utf8_mode() == 1)
+        {
+          /* FIXME: Not sure about this */
           strcpy(__langinfo, "UTF-8"); /* ? */
+        }
+        else
+        {
+          unsigned int cp = GetACP();
+          if (cp)
+            sprintf(__langinfo, "CP%u", cp);
+          else
+            strcpy(__langinfo, "UTF-8"); /* ? */
+        }
         return __langinfo;
       }
     case D_T_FMT:
@@ -61,137 +80,137 @@ char *nl_langinfo(int item)
       strcpy(__langinfo, "%X");
       return __langinfo;
     case AM_STR:
-      GetLocaleInfo(loc, LOCALE_S1159, __langinfo, 251);
+      gli (LOCALE_S1159);
       return __langinfo;
     case PM_STR:
-      GetLocaleInfo(loc, LOCALE_S2359, __langinfo, 251);
+      gli (LOCALE_S2359);
       return __langinfo;
     case DAY_1:
-      GetLocaleInfo(loc, LOCALE_SDAYNAME1, __langinfo, 251);
+      gli (LOCALE_SDAYNAME1);
       return __langinfo;
     case DAY_2:
-      GetLocaleInfo(loc, LOCALE_SDAYNAME2, __langinfo, 251);
+      gli (LOCALE_SDAYNAME2);
       return __langinfo;
     case DAY_3:
-      GetLocaleInfo(loc, LOCALE_SDAYNAME3, __langinfo, 251);
+      gli (LOCALE_SDAYNAME3);
       return __langinfo;
     case DAY_4:
-      GetLocaleInfo(loc, LOCALE_SDAYNAME4, __langinfo, 251);
+      gli (LOCALE_SDAYNAME4);
       return __langinfo;
     case DAY_5:
-      GetLocaleInfo(loc, LOCALE_SDAYNAME5, __langinfo, 251);
+      gli (LOCALE_SDAYNAME5);
       return __langinfo;
     case DAY_6:
-      GetLocaleInfo(loc, LOCALE_SDAYNAME6, __langinfo, 251);
+      gli (LOCALE_SDAYNAME6);
       return __langinfo;
     case DAY_7:
-      GetLocaleInfo(loc, LOCALE_SDAYNAME7, __langinfo, 251);
+      gli (LOCALE_SDAYNAME7);
       return __langinfo;
     case ABDAY_1:
-      GetLocaleInfo(loc, LOCALE_SABBREVDAYNAME1, __langinfo, 251);
+      gli (LOCALE_SABBREVDAYNAME1);
       return __langinfo;
     case ABDAY_2:
-      GetLocaleInfo(loc, LOCALE_SABBREVDAYNAME2, __langinfo, 251);
+      gli (LOCALE_SABBREVDAYNAME2);
       return __langinfo;
     case ABDAY_3:
-      GetLocaleInfo(loc, LOCALE_SABBREVDAYNAME3, __langinfo, 251);
+      gli (LOCALE_SABBREVDAYNAME3);
       return __langinfo;
     case ABDAY_4:
-      GetLocaleInfo(loc, LOCALE_SABBREVDAYNAME4, __langinfo, 251);
+      gli (LOCALE_SABBREVDAYNAME4);
       return __langinfo;
     case ABDAY_5:
-      GetLocaleInfo(loc, LOCALE_SABBREVDAYNAME5, __langinfo, 251);
+      gli (LOCALE_SABBREVDAYNAME5);
       return __langinfo;
     case ABDAY_6:
-      GetLocaleInfo(loc, LOCALE_SABBREVDAYNAME6, __langinfo, 251);
+      gli (LOCALE_SABBREVDAYNAME6);
       return __langinfo;
     case ABDAY_7:
-      GetLocaleInfo(loc, LOCALE_SABBREVDAYNAME7, __langinfo, 251);
+      gli (LOCALE_SABBREVDAYNAME7);
       return __langinfo;
     case MON_1:
-      GetLocaleInfo(loc, LOCALE_SMONTHNAME1, __langinfo, 251);
+      gli (LOCALE_SMONTHNAME1);
       return __langinfo;
     case MON_2:
-      GetLocaleInfo(loc, LOCALE_SMONTHNAME2, __langinfo, 251);
+      gli (LOCALE_SMONTHNAME2);
       return __langinfo;
     case MON_3:
-      GetLocaleInfo(loc, LOCALE_SMONTHNAME3, __langinfo, 251);
+      gli (LOCALE_SMONTHNAME3);
       return __langinfo;
     case MON_4:
-      GetLocaleInfo(loc, LOCALE_SMONTHNAME4, __langinfo, 251);
+      gli (LOCALE_SMONTHNAME4);
       return __langinfo;
     case MON_5:
-      GetLocaleInfo(loc, LOCALE_SMONTHNAME5, __langinfo, 251);
+      gli (LOCALE_SMONTHNAME5);
       return __langinfo;
     case MON_6:
-      GetLocaleInfo(loc, LOCALE_SMONTHNAME6, __langinfo, 251);
+      gli (LOCALE_SMONTHNAME6);
       return __langinfo;
     case MON_7:
-      GetLocaleInfo(loc, LOCALE_SMONTHNAME7, __langinfo, 251);
+      gli (LOCALE_SMONTHNAME7);
       return __langinfo;
     case MON_8:
-      GetLocaleInfo(loc, LOCALE_SMONTHNAME8, __langinfo, 251);
+      gli (LOCALE_SMONTHNAME8);
       return __langinfo;
     case MON_9:
-      GetLocaleInfo(loc, LOCALE_SMONTHNAME9, __langinfo, 251);
+      gli (LOCALE_SMONTHNAME9);
       return __langinfo;
     case MON_10:
-      GetLocaleInfo(loc, LOCALE_SMONTHNAME10, __langinfo, 251);
+      gli (LOCALE_SMONTHNAME10);
       return __langinfo;
     case MON_11:
-      GetLocaleInfo(loc, LOCALE_SMONTHNAME11, __langinfo, 251);
+      gli (LOCALE_SMONTHNAME11);
       return __langinfo;
     case MON_12:
-      GetLocaleInfo(loc, LOCALE_SMONTHNAME12, __langinfo, 251);
+      gli (LOCALE_SMONTHNAME12);
       return __langinfo;
     case ABMON_1:
-      GetLocaleInfo(loc, LOCALE_SABBREVMONTHNAME1, __langinfo, 251);
+      gli (LOCALE_SABBREVMONTHNAME1);
       return __langinfo;
     case ABMON_2:
-      GetLocaleInfo(loc, LOCALE_SABBREVMONTHNAME2, __langinfo, 251);
+      gli (LOCALE_SABBREVMONTHNAME2);
       return __langinfo;
     case ABMON_3:
-      GetLocaleInfo(loc, LOCALE_SABBREVMONTHNAME3, __langinfo, 251);
+      gli (LOCALE_SABBREVMONTHNAME3);
       return __langinfo;
     case ABMON_4:
-      GetLocaleInfo(loc, LOCALE_SABBREVMONTHNAME4, __langinfo, 251);
+      gli (LOCALE_SABBREVMONTHNAME4);
       return __langinfo;
     case ABMON_5:
-      GetLocaleInfo(loc, LOCALE_SABBREVMONTHNAME5, __langinfo, 251);
+      gli (LOCALE_SABBREVMONTHNAME5);
       return __langinfo;
     case ABMON_6:
-      GetLocaleInfo(loc, LOCALE_SABBREVMONTHNAME6, __langinfo, 251);
+      gli (LOCALE_SABBREVMONTHNAME6);
       return __langinfo;
     case ABMON_7:
-      GetLocaleInfo(loc, LOCALE_SABBREVMONTHNAME7, __langinfo, 251);
+      gli (LOCALE_SABBREVMONTHNAME7);
       return __langinfo;
     case ABMON_8:
-      GetLocaleInfo(loc, LOCALE_SABBREVMONTHNAME8, __langinfo, 251);
+      gli (LOCALE_SABBREVMONTHNAME8);
       return __langinfo;
     case ABMON_9:
-      GetLocaleInfo(loc, LOCALE_SABBREVMONTHNAME9, __langinfo, 251);
+      gli (LOCALE_SABBREVMONTHNAME9);
       return __langinfo;
     case ABMON_10:
-      GetLocaleInfo(loc, LOCALE_SABBREVMONTHNAME10, __langinfo, 251);
+      gli (LOCALE_SABBREVMONTHNAME10);
       return __langinfo;
     case ABMON_11:
-      GetLocaleInfo(loc, LOCALE_SABBREVMONTHNAME11, __langinfo, 251);
+      gli (LOCALE_SABBREVMONTHNAME11);
       return __langinfo;
     case ABMON_12:
-      GetLocaleInfo(loc, LOCALE_SABBREVMONTHNAME12, __langinfo, 251);
+      gli (LOCALE_SABBREVMONTHNAME12);
       return __langinfo;
     case ERA:
       /* Not implemented */
       __langinfo[0] = 0;
       return __langinfo;
     case ALT_DIGITS:
-      GetLocaleInfo(loc, LOCALE_SNATIVEDIGITS, __langinfo, 251);
+      gli (LOCALE_SNATIVEDIGITS);
       return __langinfo;
     case RADIXCHAR:
-      GetLocaleInfo(loc, LOCALE_SDECIMAL, __langinfo, 251);
+      gli (LOCALE_SDECIMAL);
       return __langinfo;
     case THOUSEP:
-      GetLocaleInfo(loc, LOCALE_STHOUSAND, __langinfo, 251);
+      gli (LOCALE_STHOUSAND);
       return __langinfo;
     case YESEXPR:
       /* Not localized */
@@ -202,12 +221,19 @@ char *nl_langinfo(int item)
       strcpy(__langinfo, "^[nN]");
       return __langinfo;
     case CRNCYSTR:
-      GetLocaleInfo(loc, LOCALE_STHOUSAND, __langinfo, 251);
+      gli (LOCALE_STHOUSAND);
       if (__langinfo[0] == '0' || __langinfo[0] == '2')
         __langinfo[0] = '-';
       else
         __langinfo[0] = '+';
-      GetLocaleInfo(loc, LOCALE_SCURRENCY, __langinfo + 1, 251);
+      if (plibc_utf8_mode() == 1)
+      {
+        if (GetLocaleInfoW(loc, LOCALE_SCURRENCY, __wlanginfo, 251) > 0)
+          wchartostr_buf (__wlanginfo, __langinfo + 1, 250, CP_UTF8);
+      }
+      else
+        GetLocaleInfo(loc, LOCALE_SCURRENCY, __langinfo + 1, 250);
+      return __langinfo;
     default:
       __langinfo[0] = 0;
       return __langinfo;

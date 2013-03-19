@@ -30,11 +30,13 @@
 int _win_open(const char *filename, int oflag, ...)
 {
   int mode, iFD;
-
-  char szFile[_MAX_PATH + 1];
+  wchar_t szFile[_MAX_PATH + 1];
   long lRet;
-
-  if ((lRet = plibc_conv_to_win_path(filename, szFile)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv(filename, szFile);
+  else
+    lRet = plibc_conv_to_win_path(filename, (char *) szFile);
+  if (lRet != ERROR_SUCCESS)
   {
     errno = ENOENT;
     SetLastError(lRet);
@@ -57,12 +59,14 @@ int _win_open(const char *filename, int oflag, ...)
   /* Set binary mode */
   oflag |= O_BINARY;
 
-  iFD = open(szFile, oflag, mode);
+  if (plibc_utf8_mode() == 1)
+    iFD = _wopen(szFile, oflag, mode);
+  else
+    iFD = open((char *) szFile, oflag, mode);
   if (iFD != -1)
     __win_SetHandleType((DWORD) iFD, FD_HANDLE);
-  
+
   return iFD;
 }
-
 
 /* end of open.c */

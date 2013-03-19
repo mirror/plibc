@@ -35,22 +35,33 @@ int truncate(const char *fname, int distance)
 {
   int i;
   HANDLE hFile;
-  char pszFile[_MAX_PATH + 1];
+  wchar_t pszFile[_MAX_PATH + 1];
   long lRet;
 
   errno = 0;
 
-  if ((lRet = plibc_conv_to_win_path(fname, pszFile)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv(fname, pszFile);
+  else
+    lRet = plibc_conv_to_win_path(fname, (char *) pszFile);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return -1;
   }
 
   i = -1;
-  hFile = CreateFile(pszFile, GENERIC_READ | GENERIC_WRITE,
+  if (plibc_utf8_mode() == 1)
+    hFile = CreateFileW(pszFile, GENERIC_READ | GENERIC_WRITE,
                      FILE_SHARE_READ | FILE_SHARE_WRITE,
                      NULL, OPEN_EXISTING,
                      FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
+  else
+    hFile = CreateFile((char *) pszFile, GENERIC_READ | GENERIC_WRITE,
+                     FILE_SHARE_READ | FILE_SHARE_WRITE,
+                     NULL, OPEN_EXISTING,
+                     FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
+
   if(hFile != INVALID_HANDLE_VALUE)
   {
     if(SetFilePointer(hFile, distance, NULL, FILE_BEGIN) != 0xFFFFFFFF)

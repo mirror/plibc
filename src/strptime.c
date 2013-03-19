@@ -29,6 +29,10 @@
 
 void get_locale_strings(void);
 
+/* FIXME: No wchar_t support! Luckily, this function is not used
+ * by GNUnet (yet?), so let it be for now.
+ */
+
 /* XXX This version of the implementation is not really complete.
    Some of the fields cannot add information alone.  But if seeing
    some of them in the same format (such as year, week and weekday)

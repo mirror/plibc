@@ -46,6 +46,8 @@
 #include <locale.h>
 #include <objbase.h>
 
+#include "plibc_strconv.h"
+
 typedef struct {
   char *pStart;
   HANDLE hMapping;
@@ -70,6 +72,7 @@ typedef struct
 } TReadWriteInfo;
 
 typedef int (*TStat64) (const char *path, struct stat64 *buffer);
+typedef int (*TWStat64) (const wchar_t *path, struct stat64 *buffer);
 
 typedef enum {UNKNOWN_HANDLE, SOCKET_HANDLE, PIPE_HANDLE, FD_HANDLE} THandleType;
 typedef struct
@@ -79,6 +82,16 @@ typedef struct
 } THandleInfo;
 
 extern TStat64 _plibc_stat64;
+extern TWStat64 _plibc_wstat64;
+
+struct plibc_WDIR
+{
+  struct plibc_WDIR *self;
+  _WDIR *mingw_wdir;
+  struct dirent udirent;
+};
+
+int plibc_utf8_mode();
 
 #endif //_PLIBC_PRIVATE_H_
 

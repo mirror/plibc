@@ -29,7 +29,19 @@
  */
 char *_win_ctime(const time_t *clock)
 {
-	return asctime(localtime(clock));
+  if (plibc_utf8_mode() == 1)
+  {
+    char *timeu = NULL;
+    wchar_t *timew = _wasctime (localtime (clock));
+    if (!timew)
+      return NULL;
+    wchartostr (timew, &timeu, CP_UTF8);
+    free (timew);
+    /* in case of error timeu stays NULL */
+    return timeu;
+  }
+  else
+    return asctime(localtime(clock));
 }
 
 /**
@@ -37,16 +49,36 @@ char *_win_ctime(const time_t *clock)
  */
 char *_win_ctime_r(const time_t *clock, char *buf)
 {
-	char *ret;
-	
-	ret = asctime(localtime(clock));
-	if (ret != NULL)
-	{
-		strcpy(buf, ret);
-		ret = buf;
-	}
-	
-	return ret;
+  if (plibc_utf8_mode() == 1)
+  {
+    wchar_t *ret;
+    char *retu = NULL;
+    int r;
+    ret = _wasctime(localtime(clock));
+    if (!ret)
+      return ret;
+    r = wchartostr (ret, &retu, CP_UTF8);
+    free (ret);
+    if (r < 0)
+      return NULL;
+    if (retu)
+    {
+      strcpy (buf, retu);
+      retu = buf;
+    }
+    return retu;
+  }
+  else
+  {
+    char *ret;
+    ret = asctime(localtime(clock));
+    if (ret != NULL)
+    {
+      strcpy(buf, ret);
+      ret = buf;
+    }
+    return ret;
+  }
 }
 
 /* end of ctime.c */

@@ -30,17 +30,24 @@
  */
 int _win_unlink(const char *filename)
 {
-  char szFile[_MAX_PATH + 1];
+  wchar_t szFile[_MAX_PATH + 1];
   long lRet;
 
-  if ((lRet = plibc_conv_to_win_path_ex(filename, szFile, 0)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv_ex(filename, szFile, 0);
+  else
+    lRet = plibc_conv_to_win_path_ex(filename, szFile, 0);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return -1;
   }
 
   /* unlink sets errno */
-  return unlink(szFile);
+  if (plibc_utf8_mode() == 1)
+    return _wunlink(szFile);
+  else
+    return unlink((char *) szFile);
 }
 
 /* end of unlink.c */

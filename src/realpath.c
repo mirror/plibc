@@ -26,20 +26,36 @@
 
 char *realpath(const char *file_name, char *resolved_name)
 {
-  char szFile[_MAX_PATH + 1];
   long lRet;
-  char *pszRet;
+  wchar_t szFile[_MAX_PATH + 1];
+  wchar_t szRet[_MAX_PATH + 1];
+  wchar_t *wresult;
+  char *result = NULL;
 
-  if ((lRet = plibc_conv_to_win_path(file_name, szFile)) != ERROR_SUCCESS)
+  if (plibc_utf8_mode() == 1)
+    lRet = plibc_conv_to_win_pathwconv(file_name, szFile);
+  else
+    lRet = plibc_conv_to_win_path(file_name, (char *) szFile);
+  if (lRet != ERROR_SUCCESS)
   {
     SetErrnoFromWinError(lRet);
     return NULL;
   }
 
-  pszRet = _fullpath(szFile, resolved_name, MAX_PATH);
+  if (plibc_utf8_mode() == 1)
+    wresult = _wfullpath(szRet, szFile, MAX_PATH);
+  else
+    result = _fullpath(resolved_name, (char *) szFile, MAX_PATH);
   SetErrnoFromWinError(GetLastError());
 
-  return pszRet;
+  if (plibc_utf8_mode() == 1)
+  {
+    if (wresult)
+      wchartostr (szRet, &result, CP_UTF8);
+    return result;
+  }
+  else
+    return result;
 }
 
 /* end of realpath.c */
