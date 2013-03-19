@@ -233,15 +233,14 @@ _plibc_DereferenceShortcutW(wchar_t *pwszShortcut)
       return FALSE; /* File/link is there but unaccessible */
     }
   }
-  free(pwszShortcut);
-  pwszShortcut = pwszLnk;
   
   /* Open shortcut */
-  if (FAILED(hRes = pFile->lpVtbl->Load(pFile, (LPCOLESTR) pwszShortcut, STGM_READ)))
+  hRes = pFile->lpVtbl->Load(pFile, (LPCOLESTR) pwszLnk, STGM_READ);
+  free (pwszLnk);
+  if (FAILED(hRes))
   {
     pLink->lpVtbl->Release(pLink);
     pFile->lpVtbl->Release(pFile);
-    free(pwszShortcut);
     CoUninitialize();
     
     /* For some reason, opening an invalid link sometimes fails with ACCESSDENIED.
@@ -271,7 +270,6 @@ _plibc_DereferenceShortcutW(wchar_t *pwszShortcut)
   }
   
   CloseHandle(hLink);
-  free(pwszShortcut);
   
   /* Get target file */
   if (FAILED(hRes = pLink->lpVtbl->GetPath(pLink, szTarget, _MAX_PATH, NULL, 0)))
