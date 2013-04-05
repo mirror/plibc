@@ -80,11 +80,6 @@
  * sizeof(int) < 4.  sizeof(int) > 4 is fine; all the world's not a VAX.
  */
 
-int	inet_pton4(const char *src, u_char *dst, int pton);
-#if USE_IPV6
-int	inet_pton6(const char *src, u_char *dst);
-#endif
-
 /* int
  * inet_pton(af, src, dst)
  *	convert from presentation format (which usually means ASCII printable)
