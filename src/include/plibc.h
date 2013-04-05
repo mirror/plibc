@@ -371,7 +371,9 @@ int inet_pton4(const char *src, u_char *dst, int pton);
 #if USE_IPV6
 int inet_pton6(const char *src, u_char *dst);
 #endif
+#if !defined(FTRUNCATE_DEFINED)
 int truncate(const char *fname, int distance);
+#endif
 int statfs(const char *path, struct statfs *buf);
 const char *hstrerror(int err);
 int mkstemp(char *tmplate);

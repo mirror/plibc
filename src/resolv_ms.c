@@ -932,7 +932,7 @@ Return Value
 }
 
 
-
+#if !defined(HAVE_DECL_GETADDRINFO)
 __inline
 int
 getaddrinfo(
@@ -948,6 +948,7 @@ getaddrinfo(
     return ((*pfGetAddrInfo)
             (nodename, servname, hints, res));
 }
+#endif
 
 
 #ifndef HAVE_DECL_GETNAMEINFO
@@ -971,7 +972,7 @@ getnameinfo (
 }
 #endif
 
-
+#if !defined(HAVE_DECL_FREEADDRINFO)
 __inline
 void
 freeaddrinfo (
@@ -983,3 +984,4 @@ freeaddrinfo (
         pfFreeAddrInfo  = (WSPIAPI_PFREEADDRINFO) WspiapiLoad(2);
     (*pfFreeAddrInfo)(ai);
 }
+#endif
