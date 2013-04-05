@@ -29,7 +29,7 @@ char *realpath(const char *file_name, char *resolved_name)
   long lRet;
   wchar_t szFile[_MAX_PATH + 1];
   wchar_t szRet[_MAX_PATH + 1];
-  wchar_t *wresult;
+  wchar_t *wresult = NULL;
   char *result = NULL;
 
   if (plibc_utf8_mode() == 1)
