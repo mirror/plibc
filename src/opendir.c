@@ -48,7 +48,7 @@ DIR *_win_opendir(const char *dirname)
   {
     mingw_wdir = _wopendir(szDir);
     if (mingw_wdir == NULL)
-      return mingw_wdir;
+      return NULL;
     /* Now, we need to store some extra info, so return
      * a wrapped pointer of our own.
      */

@@ -483,8 +483,8 @@ int plibc_init_utf8(char *pszOrg, char *pszApp, int utf8_mode)
 
   /* stat64 isn't available under Windows 9x */
   hMsvcrt = LoadLibrary("msvcrt.dll");
-  _plibc_stat64 = GetProcAddress(hMsvcrt, "_stat64");
-  _plibc_wstat64 = GetProcAddress(hMsvcrt, "_wstat64");
+  _plibc_stat64 = (TStat64) GetProcAddress(hMsvcrt, "_stat64");
+  _plibc_wstat64 = (TWStat64) GetProcAddress(hMsvcrt, "_wstat64");
 
   srand((unsigned int) time(NULL));
 

@@ -244,12 +244,12 @@ int _win_munmap(void *start, size_t length)
 
     ReleaseMutex(hMappingsLock);
 
-    return success ? 0 : MAP_FAILED;
+    return success ? 0 : (int) MAP_FAILED;
   }
   else
   {
     SetErrnoFromWinError(GetLastError());
-    return MAP_FAILED;
+    return (int) MAP_FAILED;
   }
 }
 

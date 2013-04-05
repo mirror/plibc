@@ -56,7 +56,7 @@ char *_win_ctime_r(const time_t *clock, char *buf)
     int r;
     ret = _wasctime(localtime(clock));
     if (!ret)
-      return ret;
+      return NULL;
     r = wchartostr (ret, &retu, CP_UTF8);
     free (ret);
     if (r < 0)
