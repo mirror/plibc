@@ -6,7 +6,7 @@ SUBDIRS = include .
 
 libplibc_la_LDFLAGS = \
  -export-dynamic -Wl,--no-undefined -Wl,--export-all-symbols -lole32 \
- -lshell32 -lcomdlg32 -lgdi32 \
+ -lshell32 -lcomdlg32 -lgdi32 -lws2_32 \
  -version-info 1:0:0
 
 libplibc_la_SOURCES = \

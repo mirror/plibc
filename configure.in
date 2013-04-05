@@ -51,7 +51,6 @@ AC_SUBST(LTDLINCL)
 AC_SUBST(LIBLTDL)
 
 AC_CHECK_LIB(intl, gettext)
-LDFLAGS="$LDFLAGS -no-undefined -Wl,--export-all-symbols -lws2_32"
 
 dnl Checks for libraries.
 
