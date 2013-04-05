@@ -23,6 +23,7 @@
  */
 
 #include "plibc_private.h"
+#include <direct.h>
 
 /**
  * @brief Remove directory

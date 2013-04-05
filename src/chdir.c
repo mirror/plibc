@@ -23,7 +23,8 @@
  */
 
 #include "plibc_private.h"
-
+/* for _wchdir */
+#include <direct.h> 
 /**
  * Change directory
  */

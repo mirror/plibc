@@ -21,6 +21,7 @@
 /* Adapted for PlibC by Nils Durner */
 
 #include <errno.h>
+#include <string.h>
 
 #include "plibc.h"
 

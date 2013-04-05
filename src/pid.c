@@ -23,6 +23,7 @@
  */
 
 #include "plibc_private.h"
+#include <process.h>
 
 /**
  * @brief wait for a process

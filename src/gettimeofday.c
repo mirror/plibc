@@ -23,6 +23,9 @@
  */
 
 #include "plibc_private.h"
+#if HAVE_SYS_TIME_H
+#include <sys/time.h> 
+#endif
 
 void _win_gettimeofday(struct timeval *tp, void *tzp)
 {

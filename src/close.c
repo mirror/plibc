@@ -24,10 +24,6 @@
 
 #include "plibc_private.h"
 
-extern unsigned int uiSockCount;
-extern Winsock *pSocks;
-extern HANDLE hSocksLock;
-
 int _win_close(int fd)
 {
   THandleType theType;
