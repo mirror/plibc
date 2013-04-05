@@ -56,7 +56,7 @@ struct tm *_time_t2tm(const time_t *__restrict timer,
 {
         register int *p;
         time_t t1, t, v;
-        int wday = wday; /* ok to be uninitialized, shutting up warning */
+        int wday = 0; /* ok to be uninitialized, shutting up warning */
 
         {
                 register const uint16_t *vp;
