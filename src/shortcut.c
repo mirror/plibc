@@ -143,7 +143,7 @@ _plibc_DereferenceShortcutW(wchar_t *pwszShortcut)
   wchar_t *pwszLnk;
   wchar_t szTarget[_MAX_PATH + 1];
   IPersistFile *pFile;
-  int iErr, iLen;
+  int iLen;
   HRESULT hRes;
   HANDLE hLink;
 
@@ -184,8 +184,6 @@ _plibc_DereferenceShortcutW(wchar_t *pwszShortcut)
   iLen = wcslen(pwszShortcut);
   if (iLen > 4 && (wcscmp(pwszShortcut + iLen - 4, L".lnk") != 0))
   {
-    HANDLE hLink;
-    
     pwszLnk = (wchar_t *) malloc((iLen + 5) * sizeof (wchar_t));
     swprintf(pwszLnk, L"%s.lnk", pwszShortcut);
   }
