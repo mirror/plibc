@@ -141,7 +141,7 @@ int __win_stat64(const char *path, struct stat64 *buffer, int iDeref)
     }
   }
 
-  if (!_plibc_stat64)
+  if (plibc_utf8_mode () == 1 ? !_plibc_wstat64 : !_plibc_stat64)
   {
     /* not supported under Windows 9x */
     struct stat theStat;
