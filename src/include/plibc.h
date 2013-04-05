@@ -70,7 +70,7 @@ extern "C" {
 /* Convert LARGE_INTEGER to double */
 #define Li2Double(x) ((double)((x).HighPart) * 4.294967296E9 + \
   (double)((x).LowPart))
-#ifndef __MINGW64__
+#ifndef __MINGW64_VERSION_MAJOR
 struct stat64
 {
     _dev_t st_dev;
