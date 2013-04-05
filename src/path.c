@@ -44,6 +44,7 @@ extern wchar_t szUser[261];
 extern wchar_t *_pwszOrg;
 extern wchar_t *_pwszApp;
 
+int plibc_conv_to_win_pathw_ex(const wchar_t *pszUnix, wchar_t *pszWindows, int derefLinks);
 
 /**
  * @brief Determine the Windows path of our / directory
