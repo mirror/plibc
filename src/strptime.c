@@ -314,7 +314,6 @@ char *
 strptime_internal (const char *rp, const char *fmt, struct tm *tm,
 		   enum locale_status *decided)
 {
-    const char *rp_backup;
     int cnt;
     ssize_t val;
     int have_I, is_pm;
@@ -352,9 +351,6 @@ strptime_internal (const char *rp, const char *fmt, struct tm *tm,
 
 	/* We need this for handling the `E' modifier.  */
     start_over:
-
-        /* Make back up of current processing pointer.  */
-	rp_backup = rp;
 
 	switch (*fmt++)
 	{
