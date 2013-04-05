@@ -316,7 +316,7 @@ strptime_internal (const char *rp, const char *fmt, struct tm *tm,
 {
     const char *rp_backup;
     int cnt;
-    size_t val;
+    ssize_t val;
     int have_I, is_pm;
     int century, want_century;
     int have_wday, want_xday;
