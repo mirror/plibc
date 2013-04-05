@@ -93,6 +93,17 @@ struct plibc_WDIR
 
 int plibc_utf8_mode();
 
+THandleType __win_GetHandleType (DWORD dwHandle);
+void __win_SetHandleType (DWORD dwHandle, THandleType eType);
+void __win_DiscardHandleType (DWORD dwHandle);
+
+int __win_deref (char *path);
+int __win_derefw (wchar_t *path);
+
+long _plibc_DetermineRootDir (void);
+long _plibc_DetermineProgramDataDir (void);
+long _plibc_DetermineHomeDir (void);
+ 
 #endif //_PLIBC_PRIVATE_H_
 
 /* end of plibc_private.h */
