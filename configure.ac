@@ -1,6 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT([PlibC], [0.1.7],[plibc-devel@lists.sf.net])
+AC_CANONICAL_TARGET
+
 dnl Every other copy of the package version number gets its value from here
 AM_INIT_AUTOMAKE(PlibC, 0.1.7)
 AM_SILENT_RULES([yes])
@@ -16,7 +18,6 @@ ISODATE=`date +%Y-%m-%d`
 AC_SUBST(ISODATE)
 
 AC_CANONICAL_HOST
-AC_CANONICAL_TARGET
 
 # Check system type
 case "$target_os" in
