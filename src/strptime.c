@@ -487,10 +487,12 @@ strptime_internal (const char *rp, const char *fmt, struct tm *tm,
 	case 'p':
 	  /* Match locale's equivalent of AM/PM.  */
 	  if (!match_string (am_pm[0], rp))
+          {
 	    if (match_string (am_pm[1], rp))
 	      is_pm = 1;
 	    else
 	      return NULL;
+          }
 	  break;
 	case 'r':
     return strptime_internal (rp, "%x %X", tm, decided);
