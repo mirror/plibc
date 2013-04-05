@@ -185,9 +185,6 @@ enum
 #if !defined(ECOMM)
 #  define ECOMM 70	/* Communication error on send */
 #endif
-#if !defined(EPROTO)
-#  define EPROTO 71	/* Protocol error */
-#endif
 #if !defined(EMULTIHOP)
 #  define EMULTIHOP 74	/* Multihop attempted */
 #endif
@@ -236,122 +233,136 @@ enum
 #if !defined(ENAMETOOLONG)
 #  define ENAMETOOLONG 91	/* File or path name too long */
 #endif
-#if !defined(ELOOP)
-#  define ELOOP 92	/* Too many symbolic links */
-#endif
-#if !defined(EOPNOTSUPP)
-#  define EOPNOTSUPP 95	/* Operation not supported on transport endpoint */
-#endif
 #if !defined(EPFNOSUPPORT)
 #  define EPFNOSUPPORT 96 /* Protocol family not supported */
 #endif
-#if !defined(ECONNRESET)
-#  define ECONNRESET 104  /* Connection reset by peer */
+#if !defined(ENOSHARE)
+#  define ENOSHARE 97        /* No such host or network path */
 #endif
-#if !defined(ENOBUFS)
-#  define ENOBUFS 105	/* No buffer space available */
-#endif
-#if !defined(EAFNOSUPPORT)
-#  define EAFNOSUPPORT 106 /* Address family not supported by protocol family */
-#endif
-#if !defined(EPROTOTYPE)
-#  define EPROTOTYPE 107	/* Protocol wrong type for socket */
-#endif
-#if !defined(ENOTSOCK)
-#  define ENOTSOCK 108	/* Socket operation on non-socket */
-#endif
-#if !defined(ENOPROTOOPT)
-#  define ENOPROTOOPT 109	/* Protocol not available */
+#if !defined(ENOMEDIUM)
+#  define ENOMEDIUM 98       /* No medium (in tape drive) */
 #endif
 #if !defined(ESHUTDOWN)
-#  define ESHUTDOWN 110	/* Can't send after socket shutdown */
-#endif
-#if !defined(ECONNREFUSED)
-#  define ECONNREFUSED 111	/* Connection refused */
+#  define ESHUTDOWN 99	/* Can't send after socket shutdown */
 #endif
 #if !defined(EADDRINUSE)
-#  define EADDRINUSE 112		/* Address already in use */
+#  define EADDRINUSE 100		/* Address already in use */
 #endif
-#if !defined(ECONNABORTED)
-#  define ECONNABORTED 113	/* Connection aborted */
+#if !defined(EADDRNOTAVAIL)
+#  define EADDRNOTAVAIL 101	/* Address not available */
 #endif
-#if !defined(ENETUNREACH)
-#  define ENETUNREACH 114		/* Network is unreachable */
-#endif
-#if !defined(ENETDOWN)
-#  define ENETDOWN 115		/* Network interface is not configured */
-#endif
-#if !defined(ETIMEDOUT)
-#  define ETIMEDOUT 116		/* Connection timed out */
-#endif
-#if !defined(EHOSTDOWN)
-#  define EHOSTDOWN 117		/* Host is down */
-#endif
-#if !defined(EHOSTUNREACH)
-#  define EHOSTUNREACH 118	/* Host is unreachable */
-#endif
-#if !defined(EINPROGRESS)
-#  define EINPROGRESS 119		/* Connection already in progress */
+#if !defined(EAFNOSUPPORT)
+#  define EAFNOSUPPORT 102 /* Address family not supported by protocol family */
 #endif
 #if !defined(EALREADY)
-#  define EALREADY 120		/* Socket already connected */
+#  define EALREADY 103		/* Socket already connected */
+#endif
+#if !defined(ECANCELED)
+#  define ECANCELED 105	/* Connection cancelled */
+#endif
+#if !defined(ECONNABORTED)
+#  define ECONNABORTED 106	/* Connection aborted */
+#endif
+#if !defined(ECONNREFUSED)
+#  define ECONNREFUSED 107	/* Connection refused */
+#endif
+#if !defined(ECONNRESET)
+#  define ECONNRESET 108  /* Connection reset by peer */
 #endif
 #if !defined(EDESTADDRREQ)
-#  define EDESTADDRREQ 121	/* Destination address required */
+#  define EDESTADDRREQ 109	/* Destination address required */
+#endif
+#if !defined(EHOSTUNREACH)
+#  define EHOSTUNREACH 110	/* Host is unreachable */
+#endif
+#if !defined(ECONNABORTED)
+#  define ECONNABORTED 111	/* Connection aborted */
+#endif
+#if !defined(EINPROGRESS)
+#  define EINPROGRESS 112		/* Connection already in progress */
+#endif
+#if !defined(EISCONN)
+#  define EISCONN 113		    /* Socket is already connected */
+#endif
+#if !defined(ELOOP)
+#  define ELOOP 114	/* Too many symbolic links */
 #endif
 #if !defined(EMSGSIZE)
-#  define EMSGSIZE 122		/* Message too long */
+#  define EMSGSIZE 115		/* Message too long */
 #endif
-#if !defined(EPROTONOSUPPORT)
-#  define EPROTONOSUPPORT 123	/* Unknown protocol */
+#if !defined(ENETDOWN)
+#  define ENETDOWN 116		/* Network interface is not configured */
+#endif
+#if !defined(ENETRESET)
+#  define ENETRESET 117		/* Connection aborted by network */
+#endif
+#if !defined(ENETUNREACH)
+#  define ENETUNREACH 118		/* Network is unreachable */
+#endif
+#if !defined(ENOBUFS)
+#  define ENOBUFS 119	/* No buffer space available */
+#endif
+#if !defined(EHOSTDOWN)
+#  define EHOSTDOWN 120		/* Host is down */
+#endif
+#if !defined(EPROCLIM)
+#  define EPROCLIM 121		/* Too many processes */
+#endif
+#if !defined(EDQUOT)
+#  define EDQUOT 122			/* Disk quota exceeded */
+#endif
+#if !defined(ENOPROTOOPT)
+#  define ENOPROTOOPT 123	/* Protocol not available */
 #endif
 #if !defined(ESOCKTNOSUPPORT)
 #  define ESOCKTNOSUPPORT 124	/* Socket type not supported */
 #endif
-#if !defined(EADDRNOTAVAIL)
-#  define EADDRNOTAVAIL 125	/* Address not available */
-#endif
-#if !defined(ENETRESET)
-#  define ENETRESET 126		/* Connection aborted by network */
-#endif
-#if !defined(EISCONN)
-#  define EISCONN 127		    /* Socket is already connected */
+#if !defined(ESTALE)
+#  define ESTALE 125          /* Unknown error */
 #endif
 #if !defined(ENOTCONN)
-#  define ENOTCONN 128		/* Socket is not connected */
+#  define ENOTCONN 126		/* Socket is not connected */
 #endif
 #if !defined(ETOOMANYREFS)
-#  define ETOOMANYREFS 129	/* Too many references: cannot splice */
+#  define ETOOMANYREFS 127	/* Too many references: cannot splice */
 #endif
-#if !defined(EPROCLIM)
-#  define EPROCLIM 130		/* Too many processes */
+#if !defined(ENOTSOCK)
+#  define ENOTSOCK 128	/* Socket operation on non-socket */
+#endif
+#if !defined(ENOTSUP)
+#  define ENOTSUP 129		    /* Not supported */
+#endif
+#if !defined(EOPNOTSUPP)
+#  define EOPNOTSUPP 130	/* Operation not supported on transport endpoint */
 #endif
 #if !defined(EUSERS)
 #  define EUSERS 131			/* Too many users */
 #endif
-#if !defined(EDQUOT)
-#  define EDQUOT 132			/* Disk quota exceeded */
+#if !defined(EOVERFLOW)
+#  define EOVERFLOW 132 /* Value too large for defined data type */
 #endif
-#if !defined(ESTALE)
-#  define ESTALE 133          /* Unknown error */
+#if !defined(EOWNERDEAD)
+#  define EOWNERDEAD 133          /* Unknown error */
 #endif
-#if !defined(ENOTSUP)
-#  define ENOTSUP 134		    /* Not supported */
+#if !defined(EPROTO)
+#  define EPROTO 134	/* Protocol error */
 #endif
-#if !defined(ENOMEDIUM)
-#  define ENOMEDIUM 135       /* No medium (in tape drive) */
+#if !defined(EPROTONOSUPPORT)
+#  define EPROTONOSUPPORT 135	/* Unknown protocol */
 #endif
-#if !defined(ENOSHARE)
-#  define ENOSHARE 136        /* No such host or network path */
+#if !defined(EPROTOTYPE)
+#  define EPROTOTYPE 136	/* Protocol wrong type for socket */
 #endif
 #if !defined(ECASECLASH)
 #  define ECASECLASH 137      /* Filename exists with different case */
 #endif
-#if !defined(EWOULDBLOCK)
-#  define EWOULDBLOCK EAGAIN	/* Operation would block */
+#if !defined(ETIMEDOUT)
+/* Make sure it's the same as WSATIMEDOUT */
+#  define ETIMEDOUT 138		/* Connection timed out */
 #endif
-#if !defined(EOVERFLOW)
-#  define EOVERFLOW 139 /* Value too large for defined data type */
+#if !defined(EWOULDBLOCK) || EWOULBLOCK == 140
+#  undef EWOULDBLOCK /* MinGW-w64 defines it as 140, but we want it as EAGAIN */
+#  define EWOULDBLOCK EAGAIN	/* Operation would block */
 #endif
 
 #undef HOST_NOT_FOUND
