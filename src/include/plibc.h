@@ -548,10 +548,12 @@ int _win_creat(const char *path, mode_t mode);
 char *_win_ctime(const time_t *clock);
 char *_win_ctime_r(const time_t *clock, char *buf);
 int _win_fstat(int handle, struct _stat *buffer);
+off_t _win_lseek(int fildes, off_t offset, int whence);
 int _win_ftruncate(int fildes, off_t length);
 void _win_gettimeofday(struct timeval *tp, void *tzp);
 int _win_kill(pid_t pid, int sig);
 int _win_pipe(int *phandles);
+intptr_t _win_mkfifo(const char *path, mode_t mode);
 int _win_rmdir(const char *path);
 int _win_access( const char *path, int mode );
 int _win_chmod(const char *filename, int pmode);
@@ -747,7 +749,7 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
  #define SETSOCKOPT(s, l, o, v, n) setsockopt(s, l, o, v, n)
  #define SHUTDOWN(s, h) shutdown(s, h)
  #define SOCKET(a, t, p) socket(a, t, p)
- #define GETHOSTBYADDR(a, l, t) gethostbyname(a, l, t)
+ #define GETHOSTBYADDR(a, l, t) gethostbyaddr(a, l, t)
  #define GETHOSTBYNAME(n) gethostbyname(n)
  #define GETTIMEOFDAY(t, n) gettimeofday(t, n)
  #define INSQUE(e, p) insque(e, p)
@@ -845,7 +847,7 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
  #define SETSOCKOPT(s, l, o, v, n) _win_setsockopt(s, l, o, v, n)
  #define SHUTDOWN(s, h) _win_shutdown(s, h)
  #define SOCKET(a, t, p) _win_socket(a, t, p)
- #define GETHOSTBYADDR(a, l, t) _win_gethostbyname(a, l, t)
+ #define GETHOSTBYADDR(a, l, t) _win_gethostbyaddr(a, l, t)
  #define GETHOSTBYNAME(n) _win_gethostbyname(n)
  #define GETTIMEOFDAY(t, n) _win_gettimeofday(t, n)
  #define INSQUE(e, p) _win_insque(e, p)
