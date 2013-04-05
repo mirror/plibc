@@ -27,17 +27,17 @@
 /**
  * @brief Get information about an open file.
  */
-int _win_fstat(int handle, struct stat *buffer)
+int _win_fstat(int handle, struct _stat *buffer)
 {
   errno = 0;
 
   /* File */
-  if (fstat(handle, buffer) == -1)
+  if (_fstat(handle, buffer) == -1)
   {
     /* We just check for a valid handle here */
 
     /* Handle */
-    memset(buffer, 0, sizeof(struct stat));
+    memset(buffer, 0, sizeof(struct _stat));
     if (GetFileType((HANDLE) handle) == FILE_TYPE_UNKNOWN && GetLastError() != NO_ERROR)
     {
       /* socket */

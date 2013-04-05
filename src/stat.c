@@ -27,7 +27,7 @@
 /**
  * @brief Get status information on a file
  */
-int __win_stat(const char *path, struct stat *buffer, int iDeref)
+int __win_stat(const char *path, struct _stat *buffer, int iDeref)
 {
   wchar_t szFile[_MAX_PATH + 1];
   long lRet;
@@ -75,13 +75,13 @@ int __win_stat(const char *path, struct stat *buffer, int iDeref)
   if (plibc_utf8_mode() == 1)
     return _wstat(szFile, buffer);
   else
-    return stat((char *) szFile, buffer);
+    return _stat((char *) szFile, buffer);
 }
 
 /**
  * @brief Get status information on a file
  */
-int _win_stat(const char *path, struct stat *buffer)
+int _win_stat(const char *path, struct _stat *buffer)
 {
   return __win_stat(path, buffer, 1);
 }
@@ -89,7 +89,7 @@ int _win_stat(const char *path, struct stat *buffer)
 /**
  * @brief Get symbolic link status
  */
-int _win_lstat(const char *path, struct stat *buf)
+int _win_lstat(const char *path, struct _stat *buf)
 {
   return __win_stat(path, buf, 0);
 }
@@ -144,7 +144,7 @@ int __win_stat64(const char *path, struct stat64 *buffer, int iDeref)
   if (plibc_utf8_mode () == 1 ? !_plibc_wstat64 : !_plibc_stat64)
   {
     /* not supported under Windows 9x */
-    struct stat theStat;
+    struct _stat theStat;
     int iRet;
     
     iRet = __win_stat(path, &theStat, iDeref);
