@@ -30,7 +30,7 @@
  */
 pid_t _win_waitpid(pid_t pid, int *stat_loc, int options)
 {
-	return _cwait(stat_loc, pid, NULL);
+	return _cwait(stat_loc, pid, 0);
 }
 
 /* end of pid.c */
