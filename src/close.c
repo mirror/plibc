@@ -49,6 +49,8 @@ int _win_close(int fd)
     case FD_HANDLE:
       ret = close(fd);
       break;
+    default:
+      theType = UNKNOWN_HANDLE;
     case UNKNOWN_HANDLE:
       ret = -1;
       errno = EBADF;
