@@ -814,9 +814,9 @@ typedef struct
 
 #define WSPIAPI_FUNCTION_ARRAY                                  \
 {                                                               \
-    "getaddrinfo",      (FARPROC) WspiapiLegacyGetAddrInfo,     \
-    "getnameinfo",      (FARPROC) WspiapiLegacyGetNameInfo,     \
-    "freeaddrinfo",     (FARPROC) WspiapiLegacyFreeAddrInfo,    \
+    {"getaddrinfo",      (FARPROC) WspiapiLegacyGetAddrInfo},     \
+    {"getnameinfo",      (FARPROC) WspiapiLegacyGetNameInfo},     \
+    {"freeaddrinfo",     (FARPROC) WspiapiLegacyFreeAddrInfo},    \
 }
 
 
