@@ -387,9 +387,6 @@ struct statfs
   long f_spare[6];              /* spare for later */
 };
 
-extern const struct in6_addr in6addr_any;        /* :: */
-extern const struct in6_addr in6addr_loopback;   /* ::1 */
-
 /* Taken from the Wine project <http://www.winehq.org>
     /wine/include/winternl.h */
 enum SYSTEM_INFORMATION_CLASS
