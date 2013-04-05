@@ -347,7 +347,9 @@ enum
 #if !defined(ECASECLASH)
 #  define ECASECLASH 137      /* Filename exists with different case */
 #endif
-#define EWOULDBLOCK EAGAIN	/* Operation would block */
+#if !defined(EWOULDBLOCK)
+#  define EWOULDBLOCK EAGAIN	/* Operation would block */
+#endif
 #if !defined(EOVERFLOW)
 #  define EOVERFLOW 139 /* Value too large for defined data type */
 #endif
