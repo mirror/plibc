@@ -90,8 +90,6 @@ int _win_select(int max_fd, fd_set * rfds, fd_set * wfds, fd_set * efds,
     if(SAFE_FD_ISSET(i, rfds) || SAFE_FD_ISSET(i, wfds) ||
        SAFE_FD_ISSET(i, efds))
     {
-      unsigned long ulVal;
-
       if (__win_GetHandleType((DWORD) i) == SOCKET_HANDLE) 
       {
         /* socket */
@@ -229,7 +227,7 @@ int _win_select(int max_fd, fd_set * rfds, fd_set * wfds, fd_set * efds,
     /* Check for closed sockets */
     for(i = 0; i < sock_max_fd; i++)
     {
-      if(SAFE_FD_ISSET(i, &sock_read))
+      if(FD_ISSET(i, &sock_read))
       {
         struct sockaddr addr;
         int len;
@@ -242,7 +240,7 @@ int _win_select(int max_fd, fd_set * rfds, fd_set * wfds, fd_set * efds,
           if (getsockopt(i, SOL_SOCKET, SO_ERROR, (char *) &err, &len) == 0 &&
                 err == WSAENOTCONN)
           {
-            if (! SAFE_FD_ISSET(i, &aread))
+            if (! FD_ISSET(i, &aread))
             {
               FD_SET(i, &aread);
               retcode++;
