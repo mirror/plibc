@@ -103,7 +103,8 @@ int __win_derefw (wchar_t *path);
 long _plibc_DetermineRootDir (void);
 long _plibc_DetermineProgramDataDir (void);
 long _plibc_DetermineHomeDir (void);
- 
+int plibc_conv_to_win_path_ex (const char *pszUnix, char *pszWindows, int derefLinks);
+
 #endif //_PLIBC_PRIVATE_H_
 
 /* end of plibc_private.h */
