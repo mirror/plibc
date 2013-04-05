@@ -24,6 +24,10 @@
 
 #include "plibc_private.h"
 
+#ifdef HAVE_LIBINTL
+#include <libintl.h>
+#endif
+
 char *_win_bindtextdomain(const char *domainname, const char *dirname)
 {
 #ifdef HAVE_LIBINTL
