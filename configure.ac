@@ -8,7 +8,7 @@ AM_INIT_AUTOMAKE(PlibC, 0.1.7)
 AM_SILENT_RULES([yes])
 
 dnl create a config.h file (Automake will add -DHAVE_CONFIG_H)
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADER([config.h])
 
 AC_SUBST(VERSION)
 
