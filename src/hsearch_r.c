@@ -22,6 +22,7 @@
 
 #include <errno.h>
 #include <string.h>
+#include <malloc.h>
 
 #include "plibc.h"
 
