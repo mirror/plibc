@@ -402,6 +402,7 @@ int plibc_conv_to_win_pathw_ex(const wchar_t *pszUnix, wchar_t *pszWindows, int 
           /* Shortcut exists */
           CloseHandle(h);
           if (mal)
+          {
             /* Need to copy */
             if (iSpaceUsed + 5 <= _MAX_PATH)
               wcscpy(pszWindows, pLnk);
@@ -410,6 +411,7 @@ int plibc_conv_to_win_pathw_ex(const wchar_t *pszUnix, wchar_t *pszWindows, int 
               free(pLnk);
               return ERROR_BUFFER_OVERFLOW;
             }
+          }
         }
         else
           pLnk[iSpaceUsed] = 0;   
@@ -572,6 +574,7 @@ int plibc_conv_to_win_path_ex(const char *pszUnix, char *pszWindows, int derefLi
           /* Shortcut exists */
           CloseHandle(h);
           if (mal)
+          {
             /* Need to copy */
             if (iSpaceUsed + 5 <= _MAX_PATH)
               strcpy(pszWindows, pLnk);
@@ -580,6 +583,7 @@ int plibc_conv_to_win_path_ex(const char *pszUnix, char *pszWindows, int derefLi
               free(pLnk);
               return ERROR_BUFFER_OVERFLOW;
             }
+          }
         }
         else
           pLnk[iSpaceUsed] = 0;   
