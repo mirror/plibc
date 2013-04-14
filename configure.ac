@@ -52,6 +52,8 @@ AC_LIB_LTDL
 AC_SUBST(LTDLINCL)
 AC_SUBST(LIBLTDL)
 
+AC_SYS_LARGEFILE
+
 AC_CHECK_LIB(intl, gettext)
 
 dnl Checks for libraries.
