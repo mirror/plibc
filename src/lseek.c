@@ -22,7 +22,7 @@
  * @brief lseek()
  */
 
-#include <io.h>
+#include "plibc_private.h"
 
 off_t _win_lseek(int fildes, off_t offset, int whence)
 {
