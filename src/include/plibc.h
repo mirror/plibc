@@ -672,8 +672,12 @@ char *stpcpy(char *dest, const char *src);
 char *strcasestr(const char *haystack_start, const char *needle_start);
 #ifndef __MINGW64_VERSION_MAJOR
 #define strcasecmp(a, b) stricmp(a, b)
-#define wcscasecmp(a, b) wcsicmp(a, b)
 #define strncasecmp(a, b, c) strnicmp(a, b, c)
+#endif
+#ifndef wcscasecmp
+#define wcscasecmp(a, b) wcsicmp(a, b)
+#endif
+#ifndef wcsncasecmp
 #define wcsncasecmp(a, b, c) wcsnicmp(a, b, c)
 #endif
 #endif /* WINDOWS */
