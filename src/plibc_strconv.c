@@ -24,16 +24,18 @@
 
 /**
  * strtowchar:
- * @str: a string (UTF-8-encoded) to convert
+ * @str: a string to convert
  * @wretstr: a pointer to variable (pointer to wchar_t) to receive the result
  * @cp: codepage to convert from
  *
- * Allocates new wchar_t string, fills it with converted @str and writes the
- * pointer to it into @wretstr. If the function fails, *@wretstr remains
- * unmodified. Converts from UTF-8 to UTF-16
+ * Allocates new wchar_t string, fills it with converted @str
+ * and writes the pointer to it into @wretstr.
+ * If the function fails, *@wretstr remains unmodified.
+ * Converts from user-provided codepage @cp to UTF-16.
  * See http://msdn.microsoft.com/en-us/library/dd319072%28VS.85%29.aspx
  * MultiByteToWideChar() documentation for values of cp.
- * CP_ACP and CP_UTF8 are recommended.
+ * CP_ACP (to convert from current codepage) and CP_UTF8 (to convert from UTF-8)
+ * are recommended.
  * Free the string returned in @wretstr with free() when it is no longer needed
  *
  * Returns:
@@ -96,14 +98,16 @@ strtowchar_buf (const char *str, wchar_t *wstr, long wstr_size, UINT cp)
  * wchartostr:
  * @wstr: a string (UTF-16-encoded) to convert
  * @wretstr: a pointer to variable (pointer to char) to receive the result
- * @cp: codepage to convert from
+ * @cp: codepage to convert to
  *
- * Allocates new wchar_t string, fills it with converted @wstr and writes the
- * pointer to it into @retstr. If the function fails, *@retstr remains
- * unmodified. Converts from UTF-8 to UTF-16
+ * Allocates new wchar_t string, fills it with converted @wstr
+ * and writes the pointer to it into @retstr.
+ * If the function fails, *@retstr remains unmodified.
+ * Converts from UTF-16 to user-provided codepage @cp.
  * See http://msdn.microsoft.com/en-us/library/dd319072%28VS.85%29.aspx
  * WideCharToMultiByte() documentation for values of cp.
- * CP_ACP and CP_UTF8 are recommended.
+ * CP_ACP (to convert to current codepage) and CP_UTF8 (to covert to UTF-8)
+ * are recommended.
  * Free the string returned in @retstr with free() when it is no longer needed
  *
  * Returns:
