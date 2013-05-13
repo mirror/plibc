@@ -22,8 +22,6 @@
  * @brief symlink implementation for Windows
  */
 
-#include <objidl.h>
-
 #include "plibc_private.h"
 
 #include <shlguid.h>
