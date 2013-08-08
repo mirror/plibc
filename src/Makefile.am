@@ -29,7 +29,6 @@ libplibc_la_SOURCES = \
  fwrite.c \
  gmtime_r.c \
  kill.c \
- gettimeofday.c \
  hsearch.c \
  hsearch_r.c \
  inet_pton.c \
