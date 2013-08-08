@@ -558,7 +558,6 @@ int _win_creat(const char *path, mode_t mode);
 char *_win_ctime(const time_t *clock);
 char *_win_ctime_r(const time_t *clock, char *buf);
 int _win_fstat(int handle, struct _stat *buffer);
-off_t _win_lseek(int fildes, off_t offset, int whence);
 int _win_ftruncate(int fildes, off_t length);
 int _win_kill(pid_t pid, int sig);
 int _win_pipe(int *phandles);
@@ -803,7 +802,7 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
  #define CHDIR(d) _win_chdir(d)
  #define CLOSE(f) _win_close(f)
  #define PLIBC_KILL(p, s) _win_kill(p, s)
- #define LSEEK(f, o, w) _win_lseek(f, o, w)
+ #define LSEEK(f, o, w) lseek(f, o, w)
  #define FSTAT(h, b) _win_fstat(h, b)
  #define RMDIR(f) _win_rmdir(f)
  #define ACCESS(p, m) _win_access(p, m)

@@ -36,7 +36,6 @@ libplibc_la_SOURCES = \
  inet_ntop.c \
  langinfo.c \
  lsearch.c \
- lseek.c \
  mkstemp.c \
  mmap.c \
  open.c \
