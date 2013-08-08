@@ -11,7 +11,6 @@ libplibc_la_LDFLAGS = \
 
 libplibc_la_SOURCES = \
  access.c \
- atoll.c \
  chdir.c \
  chmod.c \
  choosedir.c \
