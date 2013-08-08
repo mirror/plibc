@@ -588,49 +588,6 @@ int _win_lstat64(const char *path, struct stat64 *buf);
 int _win_readlink(const char *path, char *buf, size_t bufsize);
 int _win_accept(int s, struct sockaddr *addr, int *addrlen);
 
-int _win_printf(const char *format,...);
-int _win_wprintf(const wchar_t *format, ...);
-
-int _win_fprintf(FILE *f,const char *format,...);
-int _win_fwprintf(FILE *f,const wchar_t *format, ...);
-
-int _win_vprintf(const char *format, va_list ap);
-int _win_vfwprintf(FILE *stream, const wchar_t *format, va_list arg_ptr);
-
-int _win_vfprintf(FILE *stream, const char *format, va_list arg_ptr);
-int _win_vwprintf(const wchar_t *format, va_list ap);
-
-int _win_vsprintf(char *dest,const char *format, va_list arg_ptr);
-int _win_vswprintf(wchar_t *dest, const wchar_t *format, va_list arg_ptr);
-
-int _win_vsnprintf(char* str, size_t size, const char *format, va_list arg_ptr);
-int _win_vsnwprintf(wchar_t* wstr, size_t size, const wchar_t *format, va_list arg_ptr);
-
-int _win_snprintf(char *str,size_t size,const char *format,...);
-int _win_snwprintf(wchar_t *str, size_t size, const wchar_t *format, ...);
-
-int _win_sprintf(char *dest,const char *format,...);
-int _win_swprintf(wchar_t *dest, const wchar_t *format, ...);
-
-int _win_vsscanf(const char* str, const char* format, va_list arg_ptr);
-int _win_vswscanf(const wchar_t* wstr, const wchar_t* format, va_list arg_ptr);
-
-int _win_sscanf(const char *str, const char *format, ...);
-int _win_swscanf(const wchar_t *wstr, const wchar_t *format, ...);
-
-int _win_vfscanf(FILE *stream, const char *format, va_list arg_ptr);
-int _win_vfwscanf(FILE *stream, const wchar_t *format, va_list arg_ptr);
-
-int _win_vscanf(const char *format, va_list arg_ptr);
-int _win_vwscanf(const wchar_t *format, va_list arg_ptr);
-
-int _win_scanf(const char *format, ...);
-int _win_wscanf(const wchar_t *format, ...);
-
-int _win_fscanf(FILE *stream, const char *format, ...);
-int _win_fwscanf(FILE *stream, const wchar_t *format, ...);
-
-
 pid_t _win_waitpid(pid_t pid, int *stat_loc, int options);
 int _win_bind(int s, const struct sockaddr *name, int namelen);
 int _win_connect(int s,const struct sockaddr *name, int namelen);
@@ -829,20 +786,20 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
  #define READLINK(p, b, s) _win_readlink(p, b, s)
  #define LSTAT(p, b) _win_lstat(p, b)
  #define LSTAT64(p, b) _win_lstat64(p, b)
- #define PRINTF(f, ...) _win_printf(f , __VA_ARGS__)
- #define FPRINTF(fil, fmt, ...) _win_fprintf(fil, fmt, __VA_ARGS__)
- #define VPRINTF(f, a) _win_vprintf(f, a)
- #define VFPRINTF(s, f, a) _win_vfprintf(s, f, a)
- #define VSPRINTF(d, f, a) _win_vsprintf(d, f, a)
- #define VSNPRINTF(str, size, fmt, a) _win_vsnprintf(str, size, fmt, a)
- #define _REAL_SNPRINTF(str, size, fmt, ...) _win_snprintf(str, size, fmt, __VA_ARGS__)
- #define SPRINTF(d, f, ...) _win_sprintf(d, f, __VA_ARGS__)
- #define VSSCANF(s, f, a) _win_vsscanf(s, f, a)
- #define SSCANF(s, f, ...) _win_sscanf(s, f, __VA_ARGS__)
- #define VFSCANF(s, f, a) _win_vfscanf(s, f, a)
- #define VSCANF(f, a) _win_vscanf(f, a)
- #define SCANF(f, ...) _win_scanf(f, __VA_ARGS__)
- #define FSCANF(s, f, ...) _win_fscanf(s, f, __VA_ARGS__)
+ #define PRINTF printf
+ #define FPRINTF fprintf
+ #define VPRINTF(f, a) vprintf(f, a)
+ #define VFPRINTF(s, f, a) vfprintf(s, f, a)
+ #define VSPRINTF(d, f, a) vsprintf(d, f, a)
+ #define VSNPRINTF(str, size, fmt, a) vsnprintf(str, size, fmt, a)
+ #define _REAL_SNPRINTF snprintf
+ #define SPRINTF sprintf
+ #define VSSCANF(s, f, a) vsscanf(s, f, a)
+ #define SSCANF sscanf
+ #define VFSCANF(s, f, a) vfscanf(s, f, a)
+ #define VSCANF(f, a) vscanf(f, a)
+ #define SCANF scanf
+ #define FSCANF fscanf
  #define WAITPID(p, s, o) _win_waitpid(p, s, o)
  #define ACCEPT(s, a, l) _win_accept(s, a, l)
  #define BIND(s, n, l) _win_bind(s, n, l)

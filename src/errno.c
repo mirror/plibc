@@ -369,7 +369,7 @@ void _SetErrnoFromWinError(long lWinError, char *pszCaller, int iLine)
     		char szPanic[1001];
 
 	      errno = ESTALE;
-	      _win_snprintf(szPanic, 1000, "Unknown error %i in PlibC "\
+	      snprintf(szPanic, 1000, "Unknown error %i in PlibC "\
 	      		"SetErrnoFromWinError(). Source: %s:%i\n", lWinError, pszCaller,
 	      		iLine);
 	      szPanic[1000] = 0;
@@ -517,7 +517,7 @@ int GetErrnoFromWinsockError(long lWinError)
     	{
     		char szPanic[1001];
 
-	      _win_snprintf(szPanic, 1000, "Unknown error %i in " \
+	      snprintf(szPanic, 1000, "Unknown error %i in " \
 	      		"SetErrnoFromWinsockError()\n", lWinError);
 	      szPanic[1000] = 0;
 	     	__plibc_panic(4, szPanic);

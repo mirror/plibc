@@ -46,7 +46,6 @@ libplibc_la_SOURCES = \
  plibc.c \
  plibc_strconv.c \
  plibc_strconv.h \
- printf.c \
  random.c \
  read.c \
  readdir.c \

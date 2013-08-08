@@ -70,7 +70,7 @@ long _plibc_DetermineRootDir()
 
     /* Get the installation path from the registry */
     lDirLen = _MAX_PATH - 1;
-    _win_snwprintf(wszRegPath, 250, L"Software\\%s\\%s", _pwszOrg, _pwszApp);
+    snwprintf(wszRegPath, 250, L"Software\\%s\\%s", _pwszOrg, _pwszApp);
     wszRegPath[250] = 0;
 
     if(QueryRegistryW
@@ -428,7 +428,7 @@ int plibc_conv_to_win_pathw_ex(const wchar_t *pszUnix, wchar_t *pszWindows, int 
 	{
 		char szInfo[1001];
 
-  	_win_snprintf(szInfo, 1000, "Posix path %S resolved to %S\n", pszUnix,
+  	snprintf(szInfo, 1000, "Posix path %S resolved to %S\n", pszUnix,
   		pszWindows);
   	szInfo[1000] = 0;
   	__plibc_panic(INT_MAX, szInfo);
@@ -600,7 +600,7 @@ int plibc_conv_to_win_path_ex(const char *pszUnix, char *pszWindows, int derefLi
 	{
 		char szInfo[1001];
 
-  	_win_snprintf(szInfo, 1000, "Posix path %s resolved to %s\n", pszUnix,
+  	snprintf(szInfo, 1000, "Posix path %s resolved to %s\n", pszUnix,
   		pszWindows);
   	szInfo[1000] = 0;
   	__plibc_panic(INT_MAX, szInfo);

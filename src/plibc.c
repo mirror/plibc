@@ -420,7 +420,7 @@ int plibc_init_utf8(char *pszOrg, char *pszApp, int utf8_mode)
     if(pszMsg2[lMem - 2] == '\r')
       pszMsg2[lMem - 2] = 0;
 
-    _win_snprintf(szPanic, 1000, "Cannot determine %s directory (%s)\n",
+    snprintf(szPanic, 1000, "Cannot determine %s directory (%s)\n",
             eAction == ROOT ? "root" :
             eAction == HOME ? "home" : "data", pszMsg2);
     szPanic[1000] = 0;
