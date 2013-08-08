@@ -616,6 +616,7 @@ struct hostent *gethostbyname2(const char *name, int af);
 char *_win_strerror(int errnum);
 int IsWinNT();
 char *index(const char *s, int c);
+char *_win_strtok_r (char *ptr, const char *sep, char **end);
 
 #if !HAVE_STRNDUP
 char *strndup (const char *s, size_t n);
@@ -634,6 +635,9 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
 #endif
 #ifndef wcsncasecmp
 #define wcsncasecmp(a, b, c) wcsnicmp(a, b, c)
+#endif
+#ifndef strtok_r /* winpthreads defines it in pthread.h */
+#define strtok_r _win_strtok_r
 #endif
 #endif /* WINDOWS */
 
