@@ -115,6 +115,10 @@ enum
   _SC_PAGE_SIZE = 30
 };
 
+#if !defined(EACCESS)
+#  define EACCESS EACCES
+#endif
+
 /* Thanks to the Cygwin project */
 #if !defined(ENOCSI)
 #  define ENOCSI 43	/* No CSI structure available */
