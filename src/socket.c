@@ -231,6 +231,114 @@ int _win_socket(int af, int type, int protocol)
 }
 
 /**
+ * @brief Create a pair of connected sockets
+ * Unlike POSIX, these sockets are not unbound.
+ */
+int _win_socketpair(int af, int type, int protocol, int socket_vector[2])
+{
+  int iRet;
+
+  errno = 0;
+
+  SOCKET listening_socket = INVALID_SOCKET;
+  SOCKET client_socket = INVALID_SOCKET;
+  SOCKET server_socket = INVALID_SOCKET;
+  struct sockaddr_in listen_on;
+  struct sockaddr_in connected_as;
+  struct sockaddr_in connecting;
+  int alen;
+  int res;
+  unsigned long p;
+
+  do
+  {
+    listening_socket = INVALID_SOCKET;
+    client_socket = INVALID_SOCKET;
+    server_socket = INVALID_SOCKET;
+
+    client_socket = socket (af, type, protocol);
+    if (client_socket == INVALID_SOCKET)
+      goto fail_socketpair;
+
+    listening_socket = socket (af, type, protocol);
+    if (listening_socket == INVALID_SOCKET)
+      goto fail_socketpair;
+
+    p = 1;
+    res = ioctlsocket (client_socket, FIONBIO, &p);
+    if (res != 0)
+      goto fail_socketpair;
+
+    alen = sizeof (listen_on);
+    listen_on.sin_family = af;
+    listen_on.sin_port = 0;
+    listen_on.sin_addr.S_un.S_un_b.s_b1 = 127;
+    listen_on.sin_addr.S_un.S_un_b.s_b2 = 0;
+    listen_on.sin_addr.S_un.S_un_b.s_b3 = 0;
+    listen_on.sin_addr.S_un.S_un_b.s_b4 = 1;
+    res = bind (listening_socket, (const struct sockaddr *) &listen_on, alen);
+    if (res != 0)
+      goto fail_socketpair;
+
+    res = getsockname (listening_socket, (struct sockaddr *) &listen_on, &alen);
+    if (res != 0)
+      goto fail_socketpair;
+
+    res = listen (listening_socket, 0);
+    if (res != 0)
+      goto fail_socketpair;
+
+    res = connect (client_socket, (const struct sockaddr *) &listen_on, alen);
+    if ((res != 0) && WSAEWOULDBLOCK != GetLastError ())
+      goto fail_socketpair;
+
+    server_socket = accept (listening_socket, (struct sockaddr *) &connecting, &alen);
+    if (server_socket == INVALID_SOCKET)
+      goto fail_socketpair;
+
+    closesocket (listening_socket);
+    listening_socket = INVALID_SOCKET;
+
+    res = getsockname (client_socket, (struct sockaddr *) &connected_as, &alen);
+    if (res != 0)
+      goto fail_socketpair;
+
+    if (memcmp (&connected_as, &connecting, alen) != 0)
+    {
+      closesocket (client_socket);
+      closesocket (server_socket);
+      continue;
+    }
+
+    p = 0;
+    ioctlsocket(server_socket, FIONBIO, &p);
+    ioctlsocket(client_socket, FIONBIO, &p);
+
+    __win_SetHandleType((DWORD) server_socket, SOCKET_HANDLE);
+    __win_SetHandleType((DWORD) client_socket, SOCKET_HANDLE);
+
+    socket_vector[0] = client_socket;
+    socket_vector[1] = server_socket;
+
+    return 0;
+  } while (1);
+fail_socketpair:
+  {
+    int e;
+    SetErrnoFromWinsockError (GetLastError());
+    e = errno;
+    if (client_socket != INVALID_SOCKET)
+      closesocket (client_socket);
+    if (listening_socket != INVALID_SOCKET)
+      closesocket (listening_socket);
+    if (server_socket != INVALID_SOCKET)
+      closesocket (server_socket);
+    errno = e;
+    return -1;
+  }
+}
+
+/**
  * @brief Retrieve the host information corresponding to a network address
  */
 struct hostent *_win_gethostbyaddr(const char *addr, int len, int type)
