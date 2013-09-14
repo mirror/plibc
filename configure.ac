@@ -61,7 +61,6 @@ dnl Checks for libraries.
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(unistd.h sys/param.h sys/time.h time.h sys/mkdev.h sys/sysmacros.h string.h memory.h fcntl.h dirent.h sys/ndir.h ndir.h alloca.h locale.h )
-AC_CHECK_FUNCS(ftruncate)
 AC_CHECK_DECLS(getnameinfo, [], [], [[#include <tcpip.h>]])
 AC_CHECK_DECLS([getaddrinfo, freeaddrinfo], [], [], [[#include <ws2tcpip.h>]])
 

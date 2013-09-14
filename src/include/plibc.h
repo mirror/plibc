@@ -525,9 +525,6 @@ int inet_pton4(const char *src, u_char *dst, int pton);
 #if USE_IPV6
 int inet_pton6(const char *src, u_char *dst);
 #endif
-#if !defined(FTRUNCATE_DEFINED)
-int truncate(const char *fname, int distance);
-#endif
 int statfs(const char *path, struct statfs *buf);
 const char *hstrerror(int err);
 int mkstemp(char *tmplate);
@@ -563,6 +560,7 @@ char *_win_ctime(const time_t *clock);
 char *_win_ctime_r(const time_t *clock, char *buf);
 int _win_fstat(int handle, struct _stat *buffer);
 int _win_ftruncate(int fildes, off_t length);
+int _win_truncate(const char *fname, int distance);
 int _win_kill(pid_t pid, int sig);
 int _win_pipe(int *phandles);
 intptr_t _win_mkfifo(const char *path, mode_t mode);
@@ -663,6 +661,7 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
  #define FOPEN(f, m) fopen(f, m)
  #define FCLOSE(f) fclose(f)
  #define FTRUNCATE(f, l) ftruncate(f, l)
+ #define TRUNCATE(f, l) truncate(f, l)
  #define OPENDIR(d) opendir(d)
  #define CLOSEDIR(d) closedir(d)
  #define READDIR(d) readdir(d)
@@ -762,6 +761,7 @@ char *strcasestr(const char *haystack_start, const char *needle_start);
  #define FOPEN(f, m) _win_fopen(f, m)
  #define FCLOSE(f) _win_fclose(f)
  #define FTRUNCATE(f, l) _win_ftruncate(f, l)
+ #define TRUNCATE(f, l) _win_truncate(f, l)
  #define OPENDIR(d) _win_opendir(d)
  #define CLOSEDIR(d) _win_closedir(d)
  #define READDIR(d) _win_readdir(d)

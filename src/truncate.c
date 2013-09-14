@@ -31,8 +31,7 @@
  * @see http://gd.tuwien.ac.at/gnu/mingw/os-hacks.h
  */
 
-#if !defined(HAVE_FTRUNCATE)
-int truncate(const char *fname, int distance)
+int _win_truncate(const char *fname, int distance)
 {
   int i;
   HANDLE hFile;
@@ -84,7 +83,6 @@ int truncate(const char *fname, int distance)
 
   return i;
 }
-#endif
 
 int _win_ftruncate(int fildes, off_t length)
 {
