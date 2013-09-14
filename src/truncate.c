@@ -38,6 +38,7 @@ int truncate(const char *fname, int distance)
   HANDLE hFile;
   wchar_t pszFile[_MAX_PATH + 1];
   long lRet;
+  DWORD error;
 
   errno = 0;
 
@@ -52,6 +53,7 @@ int truncate(const char *fname, int distance)
   }
 
   i = -1;
+  error = NO_ERROR;
   if (plibc_utf8_mode() == 1)
     hFile = CreateFileW(pszFile, GENERIC_READ | GENERIC_WRITE,
                      FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -69,9 +71,16 @@ int truncate(const char *fname, int distance)
     {
       if(SetEndOfFile(hFile))
         i = 0;
+      else
+        error = GetLastError ();
     }
+    else
+      error = GetLastError ();
     CloseHandle(hFile);
   }
+  else
+    error = GetLastError ();
+  SetErrnoFromWinError (error);
 
   return i;
 }
