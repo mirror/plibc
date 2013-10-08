@@ -55,8 +55,8 @@ HANDLE hMappingsLock;
 TPanicProc __plibc_panic = NULL;
 int iInit = 0;
 HMODULE hMsvcrt = NULL;
-TStat64 _plibc_stat64 = NULL;
-TWStat64 _plibc_wstat64 = NULL;
+TStati64 _plibc_stati64 = NULL;
+TWStati64 _plibc_wstati64 = NULL;
 static int _plibc_utf8_mode = 0;
 int plibc_utf8_mode() { return _plibc_utf8_mode; }
 
@@ -290,7 +290,7 @@ int plibc_init_utf8(char *pszOrg, char *pszApp, int utf8_mode)
   UINT uiCP;
   char szLang[11] = "LANG=";
   wchar_t *ini;
-  struct _stat inistat;
+  struct stat inistat;
   LCID locale;
   wchar_t *binpath, *binpath_idx;
 
@@ -319,23 +319,23 @@ int plibc_init_utf8(char *pszOrg, char *pszApp, int utf8_mode)
 
   ini = L"plibc.ini";
   wcscat(binpath, ini);
-  if (_wstat(binpath, &inistat) != 0)
+  if (_wstat32i64(binpath, &inistat) != 0)
   {
     ini = L"..\\share\\plibc.ini";
     memcpy(binpath_idx, ini, 19 * sizeof (wchar_t));
-    if (_wstat(binpath, &inistat) != 0)
+    if (_wstat32i64(binpath, &inistat) != 0)
     {
       ini = L"..\\share\\plibc\\plibc.ini";
       memcpy(binpath_idx, ini, 25 * sizeof (wchar_t));
-      if (_wstat(binpath, &inistat) != 0)
+      if (_wstat32i64(binpath, &inistat) != 0)
       {
         ini = L"..\\etc\\plibc.ini";
         memcpy(binpath_idx, ini, 17 * sizeof (wchar_t));
-        if (_wstat(binpath, &inistat) != 0)
+        if (_wstat32i64(binpath, &inistat) != 0)
         {
           ini = L"..\\etc\\plibc\\plibc.ini";
           memcpy(binpath_idx, ini, 23 * sizeof (wchar_t));
-          if (_wstat(binpath, &inistat) != 0)
+          if (_wstat32i64(binpath, &inistat) != 0)
             ini = NULL;
         }
       }
@@ -478,10 +478,10 @@ int plibc_init_utf8(char *pszOrg, char *pszApp, int utf8_mode)
   /* Initialize COM library */
   CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 
-  /* stat64 isn't available under Windows 9x */
+  /* stati64 isn't available under Windows 9x, right? */
   hMsvcrt = LoadLibrary("msvcrt.dll");
-  _plibc_stat64 = (TStat64) GetProcAddress(hMsvcrt, "_stat64");
-  _plibc_wstat64 = (TWStat64) GetProcAddress(hMsvcrt, "_wstat64");
+  _plibc_stati64 = (TStati64) GetProcAddress(hMsvcrt, "_stati64");
+  _plibc_wstati64 = (TWStati64) GetProcAddress(hMsvcrt, "_wstati64");
 
   srand((unsigned int) time(NULL));
 

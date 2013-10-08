@@ -27,7 +27,7 @@
 /**
  * @brief Get status information on a file
  */
-int __win_stat(const char *path, struct _stat *buffer, int iDeref)
+int __win_stat(const char *path, struct stat *buffer, int iDeref)
 {
   wchar_t szFile[_MAX_PATH + 1];
   long lRet;
@@ -73,15 +73,15 @@ int __win_stat(const char *path, struct _stat *buffer, int iDeref)
 
   /* stat sets errno */
   if (plibc_utf8_mode() == 1)
-    return _wstat(szFile, buffer);
+    return _wstat32i64(szFile, buffer);
   else
-    return _stat((char *) szFile, buffer);
+    return stat((char *) szFile, buffer);
 }
 
 /**
  * @brief Get status information on a file
  */
-int _win_stat(const char *path, struct _stat *buffer)
+int _win_stat(const char *path, struct stat *buffer)
 {
   return __win_stat(path, buffer, 1);
 }
@@ -89,7 +89,7 @@ int _win_stat(const char *path, struct _stat *buffer)
 /**
  * @brief Get symbolic link status
  */
-int _win_lstat(const char *path, struct _stat *buf)
+int _win_lstat(const char *path, struct stat *buf)
 {
   return __win_stat(path, buf, 0);
 }
@@ -97,7 +97,7 @@ int _win_lstat(const char *path, struct _stat *buf)
 /**
  * @brief Get status information on a file
  */
-int __win_stat64(const char *path, struct stat64 *buffer, int iDeref)
+int __win_stati64(const char *path, struct _stati64 *buffer, int iDeref)
 {
   wchar_t szFile[_MAX_PATH + 1];
   long lRet;
@@ -141,10 +141,10 @@ int __win_stat64(const char *path, struct stat64 *buffer, int iDeref)
     }
   }
 
-  if (plibc_utf8_mode () == 1 ? !_plibc_wstat64 : !_plibc_stat64)
+  if (plibc_utf8_mode () == 1 ? !_plibc_wstati64 : !_plibc_stati64)
   {
     /* not supported under Windows 9x */
-    struct _stat theStat;
+    struct stat theStat;
     int iRet;
     
     iRet = __win_stat(path, &theStat, iDeref);
@@ -167,26 +167,26 @@ int __win_stat64(const char *path, struct stat64 *buffer, int iDeref)
   {
     /* stat sets errno */
     if (plibc_utf8_mode() == 1)
-      return _plibc_wstat64(szFile, buffer);
+      return _plibc_wstati64(szFile, buffer);
     else
-      return _plibc_stat64((char *) szFile, buffer);
+      return _plibc_stati64((char *) szFile, buffer);
   }
 }
 
 /**
  * @brief Get status information on a file
  */
-int _win_stat64(const char *path, struct stat64 *buffer)
+int _win_stati64(const char *path, struct _stati64 *buffer)
 {
-  return __win_stat64(path, buffer, 1);
+  return __win_stati64(path, buffer, 1);
 }
 
 /**
  * @brief Get symbolic link status
  */
-int _win_lstat64(const char *path, struct stat64 *buf)
+int _win_lstati64(const char *path, struct _stati64 *buf)
 {
-  return __win_stat64(path, buf, 0);
+  return __win_stati64(path, buf, 0);
 }
 
 /* end of stat.c */

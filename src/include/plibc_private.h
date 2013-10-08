@@ -71,8 +71,8 @@ typedef struct
   size_t nbyte;
 } TReadWriteInfo;
 
-typedef int (*TStat64) (const char *path, struct stat64 *buffer);
-typedef int (*TWStat64) (const wchar_t *path, struct stat64 *buffer);
+typedef int (*TStati64) (const char *path, struct _stati64 *buffer);
+typedef int (*TWStati64) (const wchar_t *path, struct _stati64 *buffer);
 
 typedef enum {UNKNOWN_HANDLE, SOCKET_HANDLE, PIPE_HANDLE, FD_HANDLE} THandleType;
 typedef struct
@@ -81,8 +81,8 @@ typedef struct
   THandleType eType;
 } THandleInfo;
 
-extern TStat64 _plibc_stat64;
-extern TWStat64 _plibc_wstat64;
+extern TStati64 _plibc_stati64;
+extern TWStati64 _plibc_wstati64;
 
 struct plibc_WDIR
 {
