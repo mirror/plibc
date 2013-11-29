@@ -24,6 +24,16 @@
 
 #include "plibc_private.h"
 
+typedef int (*statptr)(void *name, struct stat *s);
+
+struct stat_desc
+{
+  uint8_t bWide;
+  uint8_t iTimeSize;
+  uint8_t iFileSize;
+  statptr ptr;
+};
+
 /**
  * @brief Get status information on a file
  */
@@ -31,8 +41,26 @@ int __win_stat(const char *path, struct stat *buffer, int iDeref)
 {
   wchar_t szFile[_MAX_PATH + 1];
   long lRet;
+  uint8_t bWideChar;
+  struct stat_desc stats[] =
+       {
+           {0, 4, 4, (statptr) _stat32},
+           {1, 4, 4, (statptr) _wstat32},
+           {0, 8, 8, (statptr) _stat64},
+           {1, 8, 8, (statptr) _wstat64}
+#if HAVE_DECL__WSTAT32I64
+           ,
+           {0, 4, 8, (statptr) _stat32i64},
+           {1, 4, 8, (statptr) _wstat32i64},
+           {0, 8, 4, (statptr) _stat64i32},
+           {1, 8, 4, (statptr) _wstat64i32}
+#endif
+       };
+  struct stat_desc *pIdx, *pEnd;
+  statptr pStat;
 
-  if (plibc_utf8_mode() == 1)
+  bWideChar = plibc_utf8_mode();
+  if (bWideChar == 1)
     lRet = plibc_conv_to_win_pathwconv(path, szFile);
   else
     lRet = plibc_conv_to_win_path(path, (char *) szFile);
@@ -43,7 +71,7 @@ int __win_stat(const char *path, struct stat *buffer, int iDeref)
   }
 
   /* Remove trailing slash */
-  if (plibc_utf8_mode() == 1)
+  if (bWideChar == 1)
   {
     lRet = wcslen(szFile) - 1;
     if (szFile[lRet] == L'\\')
@@ -59,7 +87,7 @@ int __win_stat(const char *path, struct stat *buffer, int iDeref)
   /* Dereference symlinks */
   if (iDeref)
   {
-    if (plibc_utf8_mode() == 1)
+    if (bWideChar)
     {
       if (__win_derefw(szFile) == -1 && errno != EINVAL)
         return -1;
@@ -71,11 +99,36 @@ int __win_stat(const char *path, struct stat *buffer, int iDeref)
     }
   }
 
-  /* stat sets errno */
-  if (plibc_utf8_mode() == 1)
-    return _wstat32i64(szFile, buffer);
+  /* choose the right stat */
+  if (_plibc_stat_lengthSize != 0 && _plibc_stat_timeSize != 0)
+  {
+    pStat = NULL;
+    for (pIdx = stats, pEnd = stats + (sizeof(stats) / sizeof(struct stat_desc)); pIdx < pEnd; pIdx++)
+    {
+      if (pIdx->bWide == bWideChar && pIdx->iFileSize == _plibc_stat_lengthSize &&
+          pIdx->iTimeSize == _plibc_stat_timeSize)
+      {
+        pStat = pIdx->ptr;
+        break;
+      }
+    }
+
+    if (!pStat)
+    {
+      errno = EINVAL;
+      return -1;
+    }
+  }
   else
-    return stat((char *) szFile, buffer);
+  {
+    if (bWideChar)
+      pStat = (statptr) _wstat;
+    else
+      pStat = (statptr) stat;
+  }
+
+  /* stat sets errno */
+  return pStat((void *) szFile, buffer);
 }
 
 /**

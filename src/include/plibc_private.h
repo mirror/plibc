@@ -45,6 +45,7 @@
 #include <limits.h>
 #include <locale.h>
 #include <objbase.h>
+#include <stdint.h>
 
 #include "plibc_strconv.h"
 
@@ -63,6 +64,9 @@ extern Winsock *pSocks;
 extern unsigned int uiSockCount;
 extern HANDLE hSocksLock;
 extern TPanicProc __plibc_panic;
+extern uint8_t _plibc_stat_lengthSize;
+extern uint8_t _plibc_stat_timeSize;
+
 
 typedef struct
 {

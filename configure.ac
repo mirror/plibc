@@ -63,6 +63,7 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS(unistd.h sys/param.h sys/time.h time.h sys/mkdev.h sys/sysmacros.h string.h memory.h fcntl.h dirent.h sys/ndir.h ndir.h alloca.h locale.h )
 AC_CHECK_DECLS(getnameinfo, [], [], [[#include <tcpip.h>]])
 AC_CHECK_DECLS([getaddrinfo, freeaddrinfo], [], [], [[#include <ws2tcpip.h>]])
+AC_CHECK_DECLS([_stati64, _wstat32i64])
 
 AC_HEADER_MAJOR
 AC_FUNC_ALLOCA

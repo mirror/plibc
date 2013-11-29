@@ -25,6 +25,10 @@
 #include "plibc_private.h"
 #include "plibc_strconv.h"
 
+#include <sys/types.h>
+#include <wchar.h>
+
+
 #define DEBUG_WINPROC 0
 
 wchar_t szRootDir[_MAX_PATH + 1] = L"";
@@ -58,6 +62,8 @@ HMODULE hMsvcrt = NULL;
 TStati64 _plibc_stati64 = NULL;
 TWStati64 _plibc_wstati64 = NULL;
 static int _plibc_utf8_mode = 0;
+uint8_t _plibc_stat_lengthSize = 0;
+uint8_t _plibc_stat_timeSize = 0;
 int plibc_utf8_mode() { return _plibc_utf8_mode; }
 
 static HINSTANCE hIphlpapi, hAdvapi;
@@ -290,7 +296,6 @@ int plibc_init_utf8(char *pszOrg, char *pszApp, int utf8_mode)
   UINT uiCP;
   char szLang[11] = "LANG=";
   wchar_t *ini;
-  struct stat inistat;
   LCID locale;
   wchar_t *binpath, *binpath_idx;
 
@@ -319,23 +324,23 @@ int plibc_init_utf8(char *pszOrg, char *pszApp, int utf8_mode)
 
   ini = L"plibc.ini";
   wcscat(binpath, ini);
-  if (_wstat32i64(binpath, &inistat) != 0)
+  if (_waccess(binpath, 0) == 0)
   {
     ini = L"..\\share\\plibc.ini";
     memcpy(binpath_idx, ini, 19 * sizeof (wchar_t));
-    if (_wstat32i64(binpath, &inistat) != 0)
+    if (_waccess(binpath, 0) == 0)
     {
       ini = L"..\\share\\plibc\\plibc.ini";
       memcpy(binpath_idx, ini, 25 * sizeof (wchar_t));
-      if (_wstat32i64(binpath, &inistat) != 0)
+      if (_waccess(binpath, 0) == 0)
       {
         ini = L"..\\etc\\plibc.ini";
         memcpy(binpath_idx, ini, 17 * sizeof (wchar_t));
-        if (_wstat32i64(binpath, &inistat) != 0)
+        if (_waccess(binpath, 0) == 0)
         {
           ini = L"..\\etc\\plibc\\plibc.ini";
           memcpy(binpath_idx, ini, 23 * sizeof (wchar_t));
-          if (_wstat32i64(binpath, &inistat) != 0)
+          if (_waccess(binpath, 0) == 0)
             ini = NULL;
         }
       }
@@ -537,6 +542,24 @@ void plibc_shutdown()
 void plibc_set_panic_proc(TPanicProc proc)
 {
 	__plibc_panic = proc;
+}
+
+/**
+ * @brief Sets the expected size of stat.st_size
+ * @param iLength size in bytes of stat.st_size
+ */
+void plibc_set_stat_size_size(int iLength)
+{
+  _plibc_stat_lengthSize = (uint8_t) iLength;
+}
+
+/**
+ * @brief Sets the expected size of stat.st_mtime
+ * @param iLength size in bytes of stat.st_mtime
+ */
+void plibc_set_stat_time_size(int iLength)
+{
+  _plibc_stat_timeSize = (uint8_t) iLength;
 }
 
 int IsWinNT()
