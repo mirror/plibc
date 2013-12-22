@@ -467,11 +467,23 @@ int plibc_init_utf8(char *pszOrg, char *pszApp, int utf8_mode)
   theWinVersion.dwOSVersionInfoSize = sizeof(theWinVersion);
   GetVersionEx(&theWinVersion);
 
-  /* Use ANSI codepage for console IO */
-  uiCP = GetACP();
-  SetConsoleCP(uiCP);
-  SetConsoleOutputCP(uiCP);
-  setlocale( LC_ALL, ".OCP" );
+  /* Use current ANSI locale and codepage */
+  setlocale( LC_ALL, ".ACP" );
+
+  if (plibc_utf8_mode() == 1)
+  {
+    /* Use UTF8 codepage for console IO */
+    uiCP = CP_UTF8;
+    SetConsoleCP(uiCP);
+    SetConsoleOutputCP(uiCP);
+  }
+  else
+  {
+    /* Use ANSI codepage for console IO */
+    uiCP = GetACP();
+    SetConsoleCP(uiCP);
+    SetConsoleOutputCP(uiCP);
+  }
 
   /* Set LANG environment variable */
   locale = GetThreadLocale();
