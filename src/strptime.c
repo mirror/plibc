@@ -720,6 +720,23 @@ strptime (const char *buf, const char *format, struct tm *tm)
 }
 
 #ifdef HAVE_LOCALE_H
+static void
+strtostr_buf (size_t buflen, char *str, UINT cp_from, UINT cp_to)
+{
+  /* Turns out, W32 API doesn't have MultiByteToMultiByte...*/
+  char tmp[buflen];
+  wchar_t wtmp[buflen];
+  int cr;
+  cr = strtowchar_buf ((const char *) str, wtmp, buflen, cp_from);
+  if (0 == cr)
+  {
+    cr = wchartostr_buf ((const wchar_t *) wtmp, tmp, buflen, cp_to);
+    if (0 == cr)
+      strncpy (str, tmp, buflen);
+  }
+}
+
+
 void get_locale_strings(void)
 {
     int i;
@@ -749,5 +766,23 @@ void get_locale_strings(void)
     tm.tm_hour = 13;
     strftime(buff, 4, "%p", &tm);
     if(strlen(buff)) strcpy(am_pm[1], buff);
+    /* This assumes that current CP is ACP. It woudl have been
+     * cleaner to use GetCurrentCP(), but that function is post-XP
+     */
+    if (plibc_utf8_mode() == 1)
+    {
+      for (i = 0; i < 12; i++)
+      {
+        strtostr_buf (10, ab_month_name[i], CP_ACP, CP_UTF8);
+        strtostr_buf (20, month_name[i], CP_ACP, CP_UTF8);
+      }
+      for (i = 0; i < 7; i++)
+      {
+        strtostr_buf (10, ab_weekday_name[i], CP_ACP, CP_UTF8);
+        strtostr_buf (20, weekday_name[i], CP_ACP, CP_UTF8);
+      }
+      strtostr_buf (4, am_pm[0], CP_ACP, CP_UTF8);
+      strtostr_buf (4, am_pm[1], CP_ACP, CP_UTF8);
+    }
 }
 #endif
