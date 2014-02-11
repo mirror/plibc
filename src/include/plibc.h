@@ -522,7 +522,7 @@ int _win_ftruncate(int fildes, off_t length);
 int _win_truncate(const char *fname, int distance);
 int _win_kill(pid_t pid, int sig);
 int _win_pipe(int *phandles);
-intptr_t _win_mkfifo(const char *path, mode_t mode);
+int _win_mkfifo(const char *path, mode_t mode);
 int _win_rmdir(const char *path);
 int _win_access( const char *path, int mode );
 int _win_chmod(const char *filename, int pmode);
