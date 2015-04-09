@@ -425,17 +425,39 @@ struct statfs
 #define LOCK_UN  8       /* remove lock */
 
 /* Not supported under MinGW */
+#ifndef S_IRGRP
 #define S_IRGRP 0
+#endif
+#ifndef S_IWGRP
 #define S_IWGRP 0
+#endif
+#ifndef S_IROTH
 #define S_IROTH 0
+#endif
+#ifndef S_IXGRP
 #define S_IXGRP 0
+#endif
+#ifndef S_IWOTH
 #define S_IWOTH 0
+#endif
+#ifndef S_IXOTH
 #define S_IXOTH 0
+#endif
+#ifndef S_ISUID
 #define S_ISUID 0
+#endif
+#ifndef S_ISGID
 #define S_ISGID 0
+#endif
+#ifndef S_ISVTX
 #define S_ISVTX 0
+#endif
+#ifndef S_IRWXG
 #define S_IRWXG 0
+#endif
+#ifndef S_IRWXO
 #define S_IRWXO 0
+#endif
 
 #define SHUT_WR SD_SEND
 #define SHUT_RD SD_RECEIVE
